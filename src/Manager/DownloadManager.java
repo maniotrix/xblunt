@@ -166,14 +166,14 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 				|| url.toLowerCase().startsWith("http://")){
 			
 		// Verify format of URL.
-		
+		//use proxy if behind a proxy
 		try {
 			verifiedUrl = new URL(url);
 			if (url.toLowerCase().startsWith("https://")) {
-				useProxyhttps16();
+				//useProxyhttps16();
 			}
 			if (url.toLowerCase().startsWith("http://")) {
-				useProxyhttp();
+				//useProxyhttp();
 			}
 
 		} catch (Exception e) {
