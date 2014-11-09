@@ -185,7 +185,7 @@ public class DownThread extends Thread {
 
 			}
 			mainthread.thread_start[threadno] = downloaded + start;
-			mainthread.thread_temp[threadno]=downloaded;
+			mainthread.thread_temp[threadno]+=downloaded;
 			
 
 		} catch (Exception e) {

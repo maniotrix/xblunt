@@ -2,4 +2,4 @@
 2..threads more than 5 get response error for threadsize
 3..pause/resume
 4.. long filename are not accepted
-5..progress/optimize dataexch
+
