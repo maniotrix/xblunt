@@ -1,5 +1,7 @@
 1..download speed decreases as downloading threads finishes; slightly solved
 2..threads more than 5 get response error for threadsize
-3..pause/resume causes IO Exception if one of threads finishes and others still alive when we pause
-4..long filename are not accepted
-5..files less than 8kb should not be downloaded
+3..pause/resume IO Exception if one of the threads is finished when we pause
+4..long filenames are not supported yet
+
+//urls
+https://s3.amazonaws.com/berkeley-cs184x/videos/overview-motivation.mp4

@@ -1,4 +1,4 @@
-package Manager;
+package start;
 
 import java.io.*;
 import java.util.*;
@@ -92,13 +92,16 @@ public class DownThread extends Thread {
 				if (size == -1)
 					size = contentlength;
 
-				if (mainthread.ifactive && file!=null) {
+
+				if (mainthread.ifactive) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());
+					System.out.println("file seeked at filepointer");
 				} else {
 					file = new RandomAccessFile(getFileName(url), "rw");
 					mainthread.thread_file[threadno] = file;
 					file.seek(downloaded);
+					System.out.println("file seeked at 0");
 				}
 				stream = connectionhttps.getInputStream();
 			}
@@ -141,10 +144,12 @@ public class DownThread extends Thread {
 				if (mainthread.ifactive) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());
+					System.out.println("file seeked at filepointer");
 				} else {
 					file = new RandomAccessFile(getFileName(url), "rw");
 					mainthread.thread_file[threadno] = file;
 					file.seek(downloaded);
+					System.out.println("file seeked at 0");
 				}
 				stream = connectionhttp.getInputStream();
 			}
@@ -192,7 +197,7 @@ public class DownThread extends Thread {
 			System.out
 					.println("Unhandled exception encountered during threaded HTTP exchange.");
 			e.printStackTrace();
-			mainthread.error();
+			//mainthread.error();
 
 		}
 		// close connection to server
@@ -216,3 +221,4 @@ public class DownThread extends Thread {
 			return null;
 	}
 }
+

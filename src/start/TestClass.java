@@ -1,4 +1,4 @@
-package Manager;
+package start;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 
 public class TestClass {
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		// System.setProperty("java.net.useSystemProxies", "true");
 		// System.setProperty("http.proxyHost", "127.0.0.1");
 		// System.setProperty("http.proxyPort", "9050");

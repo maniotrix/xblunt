@@ -1,4 +1,4 @@
-package Manager;
+package start;
 
 import java.awt.*;
 import java.awt.event.*;
