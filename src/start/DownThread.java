@@ -1,9 +1,8 @@
 package start;
 
 import java.io.*;
-import java.util.*;
 import java.net.*;
-import java.util.concurrent.*;
+
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -16,7 +15,7 @@ public class DownThread extends Thread {
 	private byte[] buffer;
 	private long end;
 	private RandomAccessFile file;
-	HttpsURLConnection connectionhttps ;
+	HttpsURLConnection connectionhttps;
 	HttpURLConnection connectionhttp;
 
 	public DownThread(URL url, int numthreads, int threadNo, long l, long m,
@@ -40,14 +39,10 @@ public class DownThread extends Thread {
 
 	// return thread progress
 	public long getprogress() {
-		return  downloaded;
+		return downloaded;
 	}
 
-	// Get file name portion of URL.
-	private String getFileName(URL url) {
-		String fileName = url.getFile();
-		return (fileName.substring(fileName.lastIndexOf('/') + 1) + threadno);
-	}
+	
 
 	@Override
 	public void run() {
@@ -56,28 +51,36 @@ public class DownThread extends Thread {
 
 		try {
 			// Open connection to URL.
-			if (mainthread.type == 1) {
-				 connectionhttps = (HttpsURLConnection) url
-						.openConnection();
+			if (mainthread.type == Download.https) {
+				connectionhttps = (HttpsURLConnection) url.openConnection();
 				System.out.println("trying to connect(Thread)" + "" + threadno);
 				// Specify what portion of file to download.
-				if (threadno + 1 == Numthreads)
-					connectionhttps.setRequestProperty("Range", "bytes=" + start
-							+ "-");
-				else
-					connectionhttps.setRequestProperty("Range", "bytes=" + start
-							+ "-" + end);
+				if(end-start <=0)return;
+				/*
+				 * if (threadno + 1 == Numthreads)
+				 * connectionhttps.setRequestProperty("Range", "bytes=" + start
+				 * + "-"); else
+				 */
+				connectionhttps.setRequestProperty("Range", "bytes=" + start
+						+ "-" + end);
 				// Connect to server.
-				connectionhttps.connect();
-				if(mainthread.ifresumed==false)
-					{
-					System.out.println(" thread "+threadno+" died");
+				try {
+					connectionhttps.connect();
+				} catch (IOException e) {
+					System.out.println("connection error");
+				}
+				if (mainthread.ifresumed == false) {
+					System.out.println(" thread " + threadno + " died");
 					return;
-					}
+				}
 
 				// make sure reponse code is in the 200 range
-				if (connectionhttps.getResponseCode() / 100 != 2) {
-					// error();
+				int ResponseCode = connectionhttps.getResponseCode();
+				if (ResponseCode / 100 != 2) {
+
+					System.out.println("unwanted response code= "
+							+ ResponseCode);
+					return;
 				}
 				// check for valid content length
 				int contentlength = connectionhttps.getContentLength();
@@ -85,48 +88,54 @@ public class DownThread extends Thread {
 						.println(contentlength + "of thread" + " " + threadno);
 				if (contentlength < 1)
 					mainthread.error();
-
+				System.out.println("start= " + start + " end= " + end
+						+ " end-start= " + (end - start) + " contenlength= "
+						+ contentlength);
 				/*
 				 * set the length of download if it is not already set
 				 */
 				if (size == -1)
 					size = contentlength;
 
-
-				if (mainthread.ifactive) {
+				if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());
 					System.out.println("file seeked at filepointer");
 				} else {
-					file = new RandomAccessFile(getFileName(url), "rw");
+					file = new RandomAccessFile(
+							Download.getFileName(connectionhttps) + "_"
+									+ threadno, "rw");
 					mainthread.thread_file[threadno] = file;
 					file.seek(downloaded);
 					System.out.println("file seeked at 0");
 				}
 				stream = connectionhttps.getInputStream();
 			}
-			if (mainthread.type == 0) {
-				 connectionhttp = (HttpURLConnection) url
-						.openConnection();
+			if (mainthread.type == Download.http) {
+				connectionhttp = (HttpURLConnection) url.openConnection();
 				System.out.println("trying to connect(Thread)" + "" + threadno);
+				if(end-start <=0)return;
 				// Specify what portion of file to download.
-				if (threadno + 1 == Numthreads)
-					connectionhttp.setRequestProperty("Range", "bytes=" + start
-							+ "-");
-				else
-					connectionhttp.setRequestProperty("Range", "bytes=" + start
-							+ "-" + end);
+				connectionhttp.setRequestProperty("Range", "bytes=" + start
+						+ "-" + end);
 				// Connect to server.
-				connectionhttp.connect();
-				if(mainthread.ifresumed==false)
-					{
-					System.out.println(" thread "+threadno+" died");
+				try {
+					connectionhttp.connect();
+				} catch (IOException e) {
+					System.out.println("connection error");
+				}
+				if (mainthread.ifresumed == false) {
+					System.out.println(" thread " + threadno + " died");
 					return;
-					}
+				}
 
 				// make sure reponse code is in the 200 range
-				if (connectionhttp.getResponseCode() / 100 != 2) {
-					// error();
+				int ResponseCode = connectionhttp.getResponseCode();
+				if (ResponseCode / 100 != 2) {
+
+					System.out.println("unwanted response code= "
+							+ ResponseCode);
+					return;
 				}
 				// check for valid content length
 				int contentlength = connectionhttp.getContentLength();
@@ -134,19 +143,22 @@ public class DownThread extends Thread {
 						.println(contentlength + "of thread" + " " + threadno);
 				if (contentlength < 1)
 					mainthread.error();
-
+				System.out.println("end-start= " + (end - start)
+						+ " contenlength= " + contentlength);
 				/*
 				 * set the length of download if it is not already set
 				 */
 				if (size == -1)
 					size = contentlength;
 
-				if (mainthread.ifactive) {
+				if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());
 					System.out.println("file seeked at filepointer");
 				} else {
-					file = new RandomAccessFile(getFileName(url), "rw");
+					file = new RandomAccessFile(
+							Download.getFileName(connectionhttp) + "_"
+									+ threadno, "rw");
 					mainthread.thread_file[threadno] = file;
 					file.seek(downloaded);
 					System.out.println("file seeked at 0");
@@ -183,21 +195,20 @@ public class DownThread extends Thread {
 
 				file.write(buffer, 0, read);
 				downloaded += read;
-				mainthread.thread_data[threadno] = mainthread.thread_temp[threadno]+
-						downloaded;
+				mainthread.thread_data[threadno] = mainthread.thread_temp[threadno]
+						+ downloaded;
 
 				dataexch();
 
 			}
 			mainthread.thread_start[threadno] = downloaded + start;
-			mainthread.thread_temp[threadno]+=downloaded;
-			
+			mainthread.thread_temp[threadno] += downloaded;
 
 		} catch (Exception e) {
 			System.out
 					.println("Unhandled exception encountered during threaded HTTP exchange.");
 			e.printStackTrace();
-			//mainthread.error();
+			// mainthread.error();
 
 		}
 		// close connection to server
@@ -221,4 +232,3 @@ public class DownThread extends Thread {
 			return null;
 	}
 }
-

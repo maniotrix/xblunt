@@ -1,5 +1,0 @@
-1..download speed decreases as downloading threads finishes; slightly solved
-2..threads more than 5 get response error for threadsize
-3..pause/resume causes IO Exception if one of threads finishes and others still alive when we pause
-4..long filename are not accepted
-5..files less than 8kb should not be downloaded

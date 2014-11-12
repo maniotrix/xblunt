@@ -30,7 +30,7 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 		// Set application title.
 		setTitle("Download Manager");
 		// Set window size.
-		setSize(640, 480);
+		setSize(800, 480);
 		// Handle window closing events.
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -92,7 +92,7 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 			}
 		});
 		pauseButton.setEnabled(false);
-		
+
 		buttonsPanel.add(pauseButton);
 		resumeButton = new JButton("Resume");
 		resumeButton.addActionListener(new ActionListener() {
@@ -132,26 +132,26 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 
 	// Add a new download.
 	private void actionAdd() {
-		int urltype=set_url_type(addTextField.getText());
-		URL verifiedUrl = TestClass.verifyUrl(addTextField.getText());
+		int urltype = set_url_type(addTextField.getText());
+		URL verifiedUrl = verifyUrl(addTextField.getText());
 		if (verifiedUrl != null) {
-			tableModel.addDownload(new Download(5,verifiedUrl,urltype));
+			tableModel.addDownload(new Download(5, verifiedUrl, urltype));
 			addTextField.setText(""); // reset add text field
 		} else {
 			JOptionPane.showMessageDialog(this, "Invalid Download URL",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
-	//set url type
-	public static int set_url_type(String url){
-		int temp=0;
+
+	// set url type
+	public static int set_url_type(String url) {
+		int temp = 0;
 		if (url.toLowerCase().startsWith("https://"))
-			temp=Download.https;
-		else 
-			temp=Download.http;
+			temp = Download.https;
+		else
+			temp = Download.http;
 		return temp;
-				
+
 	}
 
 	// Verify download URL.
@@ -160,29 +160,43 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 		URL verifiedUrl = null;
 		if (!url.toLowerCase().startsWith("https://")
 				|| !url.toLowerCase().startsWith("http://"))
-			verifiedUrl =null;
+			verifiedUrl = null;
 		// Only allow HTTP URLs.
 		if (url.toLowerCase().startsWith("https://")
-				|| url.toLowerCase().startsWith("http://")){
-			
-		// Verify format of URL.
-		//use proxy if behind a proxy
-		try {
-			verifiedUrl = new URL(url);
-			if (url.toLowerCase().startsWith("https://")) {
-				//useProxyhttps16();
-			}
-			if (url.toLowerCase().startsWith("http://")) {
-				//useProxyhttp();
-			}
+				|| url.toLowerCase().startsWith("http://")) {
 
-		} catch (Exception e) {
-			return null;
-		}}
+			// Verify format of URL.
+			// use proxy if behind a proxy
+			try {
+				verifiedUrl = new URL(url);
+				if (url.toLowerCase().startsWith("https://")) {
+					 //useProxyhttps();
+					//useProxySocks_v5();
+				}
+				if (url.toLowerCase().startsWith("http://")) {
+					// useProxyhttp16();
+					//useProxySocks_v5();
+				}
+
+			} catch (Exception e) {
+				return null;
+			}
+		}
 		// Make sure URL specifies a file.
 		if (verifiedUrl.getFile().length() < 2)
 			return null;
 		return verifiedUrl;
+	}
+
+	public static void useProxySocks_v5() {
+		String host = "127.0.0.1";
+		String port = "9050";
+		System.out.println("Using proxy: " + host + ":" + port);
+		System.setProperty("socksProxyVersion", " 5");
+		System.setProperty("socksProxyHost", host);
+		System.setProperty("socksProxyPort", port);
+		// System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
+
 	}
 
 	public static void useProxyhttps() {
@@ -367,8 +381,7 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 
 	// Run the Download Manager.
 	public static void main(String[] args) {
-		
-		
+		// System.setProperty("java.net.useSystemProxies", "true");
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				DownloadManager manager = new DownloadManager();

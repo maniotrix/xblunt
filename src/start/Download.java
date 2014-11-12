@@ -2,7 +2,6 @@ package start;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.Exchanger;
 import java.net.*;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -26,7 +25,7 @@ public class Download extends java.util.Observable implements
 	public static final int Errors = 4;
 	public static final int http = 0;
 	public static final int https = 1;
-	public  int type;
+	public int type;
 	boolean ifresumed = true;
 	boolean ifactive = false;
 	private int numthreads, contentlength;
@@ -46,7 +45,7 @@ public class Download extends java.util.Observable implements
 	Thread thread;
 
 	// constructor for download
-	public Download(int numthread, URL url,int Urltype) {
+	public Download(int numthread, URL url, int Urltype) {
 		this.url = url;
 		filesize = -1;
 		downloaded = 0;
@@ -56,7 +55,7 @@ public class Download extends java.util.Observable implements
 		thread_size = new long[numthread];
 		thread_temp = new long[numthread];
 		thread_file = new RandomAccessFile[numthread];
-		this.type=Urltype;
+		this.type = Urltype;
 		// start download
 		download(numthread);
 
@@ -96,7 +95,6 @@ public class Download extends java.util.Observable implements
 		status = Paused;
 		dataexch();
 		statechanged();
-	
 
 		try {
 			thread.sleep(2000);
@@ -178,6 +176,73 @@ public class Download extends java.util.Observable implements
 		return fileName.substring(fileName.lastIndexOf('/') + 1);
 	}
 
+	/**
+	 * Returns the file name associated to an url connection.<br />
+	 * The result is not a path but just a file name.
+	 * 
+	 * @param urlC
+	 *            - the url connection
+	 * @return the file name
+	 * 
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public static final String getFileName(URLConnection urlC)
+			throws IOException {
+		String fileName = null;
+
+		String contentDisposition = urlC.getHeaderField("content-disposition");
+
+		if (contentDisposition != null) {
+			fileName = extractFileNameFromContentDisposition(contentDisposition);
+		}
+
+		// if the file name cannot be extracted from the content-disposition
+		// header, using the url.getFilename() method
+		if (fileName == null) {
+			StringTokenizer st = new StringTokenizer(urlC.getURL().getFile(),
+					"/");
+			while (st.hasMoreTokens())
+				fileName = st.nextToken();
+		}
+
+		return fileName;
+	}
+
+	/**
+	 * Extract the file name from the content disposition header.
+	 * <p>
+	 * See <a
+	 * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html">http:
+	 * //www.w3.org/Protocols/rfc2616/rfc2616-sec19.html</a> for detailled
+	 * information regarding the headers in HTML.
+	 * 
+	 * @param contentDisposition
+	 *            - the content-disposition header. Cannot be <code>null>/code>.
+	 * @return the file name, or <code>null</code> if the content-disposition
+	 *         header does not contain the filename attribute.
+	 */
+	public static final String extractFileNameFromContentDisposition(
+			String contentDisposition) {
+		System.out.println("content disposition = " + contentDisposition);
+		String[] attributes = contentDisposition.split(";");
+
+		for (String a : attributes) {
+			if (a.toLowerCase().contains("filename")) {
+				// The attribute is the file name. The filename is between
+				// quotes.
+				try {
+					return a.substring(a.indexOf('\"') + 1, a.lastIndexOf('\"'));
+				} catch (StringIndexOutOfBoundsException e) {
+					return a.substring(a.indexOf('=') + 1, a.length());
+				}
+			}
+		}
+
+		// not found
+		return null;
+	}
+
 	@Override
 	public void run() {
 		RandomAccessFile file = null;
@@ -185,7 +250,7 @@ public class Download extends java.util.Observable implements
 
 		try {
 			// Open connection to URL.
-			if (this.type == 0) {
+			if (this.type == http) {
 				connectionhttp = (HttpURLConnection) url.openConnection();
 
 				System.out.println("trying to connect and status= "
@@ -193,21 +258,30 @@ public class Download extends java.util.Observable implements
 				// Specify what portion of file to download.
 				connectionhttp.setRequestProperty("Range", "bytes=" + 0 + "-");
 				// Connect to server.
-				connectionhttp.connect();
+				try {
+					connectionhttp.connect();
+				} catch (IOException e) {
+					System.out.println("connection error");
+				}
 				if (ifresumed == false) {
 					System.out.println(" mainthread died");
 					return;
 				}
 				// make sure reponse code is in the 200 range
-				if (connectionhttp.getResponseCode() / 100 != 2) {
+				int ResponseCode = connectionhttp.getResponseCode();
+				if (ResponseCode / 100 != 2) {
+
+					System.out.println("unwanted response code= "
+							+ ResponseCode);
 					error();
+					return;
 				}
 				// check for valid content length
 				this.contentlength = connectionhttp.getContentLength();
 				if (contentlength < 1)
-					error();
+					return;
 			}
-			if (this.type == 1) {
+			if (this.type == https) {
 				connectionhttps = (HttpsURLConnection) url.openConnection();
 
 				System.out.println("trying to connect and status= "
@@ -217,31 +291,43 @@ public class Download extends java.util.Observable implements
 				connectionhttps.setRequestProperty("Range", "bytes=" + 0 + "-");
 				// Connect to server.
 				System.out.println("Connect to server.");
-				connectionhttps.connect();
+				try {
+					connectionhttps.connect();
+				} catch (IOException e) {
+					System.out.println("connection error");
+				}
 				if (ifresumed == false) {
 					System.out.println(" mainthread died");
 					return;
 				}
 				// make sure reponse code is in the 200 range
-				if (connectionhttps.getResponseCode() / 100 != 2) {
+				int ResponseCode = connectionhttps.getResponseCode();
+				if (ResponseCode / 100 != 2) {
+
+					System.out.println("unwanted response code= "
+							+ ResponseCode);
 					error();
+					return;
 				}
 				// check for valid content length
 				this.contentlength = connectionhttps.getContentLength();
-				if (contentlength < 1)
-					error();
+				if (contentlength < 1) {
+					System.out.println("incorrect contentlength= ");
+					return;
+				}
+
 			}
 
 			/*
 			 * set the length of download if it is not already set
 			 */
-			if (filesize == -1 || filesize!=contentlength) {
+			if (filesize == -1 || filesize != contentlength) {
 				filesize = contentlength;
 				statechanged();
 				System.out.println("connected" + filesize + "status= "
 						+ this.getstatus());
 			}
-			System.out.println("connected" + " and filesize= "+filesize );
+			System.out.println("connected" + " and filesize= " + filesize);
 			if (ifresumed == false) {
 				System.out.println(" mainthread died");
 				return;
@@ -272,7 +358,12 @@ public class Download extends java.util.Observable implements
 			System.out.println("opening file");
 			// open file and seek to the end of it
 			if (this.status == Downloading) {
-				file = new RandomAccessFile(getFileName(url), "rw");
+				if (this.type == http)
+					file = new RandomAccessFile(
+							Download.getFileName(connectionhttp), "rw");
+				else
+					file = new RandomAccessFile(
+							Download.getFileName(connectionhttps), "rw");
 				file.seek(0);
 				for (int i = 0; i < numthreads; i++) {
 					thread_file[i].seek(0);
@@ -315,6 +406,13 @@ public class Download extends java.util.Observable implements
 					System.out.println("bytes wriiten "
 							+ thread_file[i].length() + " "
 							+ file.getFilePointer());
+					thread_file[i].close();
+					if (this.type == http)
+						new File(Download.getFileName(connectionhttp) + "_" + i)
+								.delete();
+					else
+						new File(Download.getFileName(connectionhttps) + "_"
+								+ i).delete();
 
 				}
 			}
@@ -340,14 +438,12 @@ public class Download extends java.util.Observable implements
 			if (file != null) {
 				try {
 					file.close();
-					System.out.println("mainthreaded exited");
+					System.out.println("mainthread exited file!=null");
 				} catch (Exception e) {
 				}
-				
 
-			}
-			else
-				System.out.println("mainthreaded exited");
+			} else
+				System.out.println("mainthread exited");
 			// close connection to server
 			if (stream != null) {
 				try {
