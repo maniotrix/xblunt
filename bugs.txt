@@ -1,0 +1,1 @@
+*http servers(http 1.0) which does not support  byte-serving/or multiple requests from same client are not supported in this application
