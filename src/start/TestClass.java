@@ -7,13 +7,14 @@ import java.util.concurrent.*;
 
 public class TestClass {
 
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		// System.setProperty("java.net.useSystemProxies", "true");
 		// System.setProperty("http.proxyHost", "127.0.0.1");
 		// System.setProperty("http.proxyPort", "9050");
-		String s="http://danielpocock.com/sites/danielpocock.com/files/concert.png";
+		
+		String s="http://download.oracle.com/otn-pub/java/jdk/8u25-b17/jdk-8u25-linux-x64.tar.gz?AuthParam=1416018901_434cd221a1821006be92992be32ce29e";
 		Download test = new Download(
-				4,
+				8,
 				verifyUrl(s),DownloadManager.set_url_type(s));
 
 	}
@@ -33,7 +34,7 @@ public class TestClass {
 		try {
 			verifiedUrl = new URL(url);
 			if (url.toLowerCase().startsWith("https://")) {
-				useProxyhttps16();
+				useProxyhttps();
 			}
 			if (url.toLowerCase().startsWith("http://")) {
 				useProxyhttp();
@@ -71,7 +72,7 @@ public class TestClass {
 
 	public static void useProxyhttp() {
 
-		String host = "10.1.1.19";
+		String host = "10.1.1.18";
 		String port = "80";
 		System.out.println("Using proxy: " + host + ":" + port);
 		System.setProperty("http.proxyHost", host);

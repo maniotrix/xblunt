@@ -66,9 +66,11 @@ public class Download extends java.util.Observable implements
 	}
 
 	public void dataexch() {
-
-		this.progress = thread_data[0] + thread_data[1] + thread_data[2]
-				+ thread_data[3] + thread_data[4];
+		long temp = 0;
+		for (int i = 0; i < numthreads; i++) {
+			temp += thread_data[i];
+		}
+		this.progress = temp;
 
 		this.statechanged();
 		// System.out.println("downloaded = " + downloaded);
@@ -110,14 +112,17 @@ public class Download extends java.util.Observable implements
 				connectionhttps.disconnect();
 			System.out.println("disconnected threads ");
 		}
-		for (int i = 0; i < numthreads; i++) {
-			while (threads[i] != null && threads[i].isAlive()) {
-				if (this.type == 0) {
-					threads[i].connectionhttp.disconnect();
-				} else
-					threads[i].connectionhttps.disconnect();
+		try {
+			for (int i = 0; i < numthreads; i++) {
+				while (threads[i] != null && threads[i].isAlive()) {
+					if (this.type == 0) {
+						threads[i].connectionhttp.disconnect();
+					} else
+						threads[i].connectionhttps.disconnect();
 
+				}
 			}
+		} catch (Exception e) {
 		}
 
 	}
@@ -142,7 +147,7 @@ public class Download extends java.util.Observable implements
 
 	public long get_thread_data(int i) {
 		System.out.println("creating data for thread " + i);
-		if (ifactive == true)
+		if (ifactive == true && thread_start[i] > 0)
 			return thread_start[i];
 
 		return ((filesize * i) / numthreads);
@@ -273,7 +278,6 @@ public class Download extends java.util.Observable implements
 
 					System.out.println("unwanted response code= "
 							+ ResponseCode);
-					error();
 					return;
 				}
 				// check for valid content length
@@ -293,7 +297,7 @@ public class Download extends java.util.Observable implements
 				System.out.println("Connect to server.");
 				try {
 					connectionhttps.connect();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.out.println("connection error");
 				}
 				if (ifresumed == false) {
@@ -306,7 +310,6 @@ public class Download extends java.util.Observable implements
 
 					System.out.println("unwanted response code= "
 							+ ResponseCode);
-					error();
 					return;
 				}
 				// check for valid content length

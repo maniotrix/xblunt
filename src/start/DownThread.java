@@ -66,7 +66,7 @@ public class DownThread extends Thread {
 				// Connect to server.
 				try {
 					connectionhttps.connect();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.out.println("connection error");
 				}
 				if (mainthread.ifresumed == false) {

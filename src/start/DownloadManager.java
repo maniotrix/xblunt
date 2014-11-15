@@ -50,6 +50,34 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 		fileMenu.add(fileExitMenuItem);
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
+		
+		JMenu mnInternet = new JMenu("Proxy");
+		menuBar.add(mnInternet);
+		
+		JMenuItem mntmDirect = new JMenuItem("Direct");
+		mntmDirect.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new Proxy().removeProxy();
+			}
+		});
+		mnInternet.add(mntmDirect);
+		
+		
+		JMenuItem mntmManual = new JMenuItem("Manual");
+		mntmManual.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			new proxy_GUI().frmProxysettings.setVisible(true);
+			}
+		});
+		
+		JMenuItem mntmSystem = new JMenuItem("System");
+		mntmSystem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.setProperty("java.net.useSystemProxies", "true");
+			}
+		});
+		mnInternet.add(mntmSystem);
+		mnInternet.add(mntmManual);
 		// Set up add panel.
 		JPanel addPanel = new JPanel();
 		addTextField = new JTextField(30);
@@ -135,7 +163,7 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 		int urltype = set_url_type(addTextField.getText());
 		URL verifiedUrl = verifyUrl(addTextField.getText());
 		if (verifiedUrl != null) {
-			tableModel.addDownload(new Download(5, verifiedUrl, urltype));
+			tableModel.addDownload(new Download(8, verifiedUrl, urltype));
 			addTextField.setText(""); // reset add text field
 		} else {
 			JOptionPane.showMessageDialog(this, "Invalid Download URL",
@@ -169,15 +197,6 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 			// use proxy if behind a proxy
 			try {
 				verifiedUrl = new URL(url);
-				if (url.toLowerCase().startsWith("https://")) {
-					 //useProxyhttps();
-					//useProxySocks_v5();
-				}
-				if (url.toLowerCase().startsWith("http://")) {
-					// useProxyhttp16();
-					//useProxySocks_v5();
-				}
-
 			} catch (Exception e) {
 				return null;
 			}
@@ -186,101 +205,6 @@ public class DownloadManager extends JFrame implements Observer {// Add download
 		if (verifiedUrl.getFile().length() < 2)
 			return null;
 		return verifiedUrl;
-	}
-
-	public static void useProxySocks_v5() {
-		String host = "127.0.0.1";
-		String port = "9050";
-		System.out.println("Using proxy: " + host + ":" + port);
-		System.setProperty("socksProxyVersion", " 5");
-		System.setProperty("socksProxyHost", host);
-		System.setProperty("socksProxyPort", port);
-		// System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
-
-	}
-
-	public static void useProxyhttps() {
-
-		String host = "10.1.1.18";
-		String port = "80";
-		System.out.println("Using proxy: " + host + ":" + port);
-		System.setProperty("https.proxyHost", host);
-		System.setProperty("https.proxyPort", port);
-		System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
-		final String authUser = "506.13135079";
-		final String authPassword = "iitcc2013";
-		Authenticator.setDefault(new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(authUser, authPassword
-						.toCharArray());
-			}
-		});
-
-		System.setProperty("https.proxyUser", authUser);
-		System.setProperty("https.proxyPassword", authPassword);
-	}
-
-	public static void useProxyhttp() {
-
-		String host = "10.1.1.19";
-		String port = "80";
-		System.out.println("Using proxy: " + host + ":" + port);
-		System.setProperty("http.proxyHost", host);
-		System.setProperty("http.proxyPort", port);
-		System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
-		final String authUser = "506.13135079";
-		final String authPassword = "iitcc2013";
-		Authenticator.setDefault(new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(authUser, authPassword
-						.toCharArray());
-			}
-		});
-
-		System.setProperty("http.proxyUser", authUser);
-		System.setProperty("http.proxyPassword", authPassword);
-	}
-
-	public static void useProxyhttps16() {
-
-		String host = "10.1.1.16";
-		String port = "80";
-		System.out.println("Using proxy: " + host + ":" + port);
-		System.setProperty("https.proxyHost", host);
-		System.setProperty("https.proxyPort", port);
-		System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
-		final String authUser = "067.9721097213";
-		final String authPassword = "kshitizkmr091";
-		Authenticator.setDefault(new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(authUser, authPassword
-						.toCharArray());
-			}
-		});
-
-		System.setProperty("https.proxyUser", authUser);
-		System.setProperty("https.proxyPassword", authPassword);
-	}
-
-	public static void useProxyhttp16() {
-
-		String host = "10.1.1.16";
-		String port = "80";
-		System.out.println("Using proxy: " + host + ":" + port);
-		System.setProperty("http.proxyHost", host);
-		System.setProperty("http.proxyPort", port);
-		System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
-		final String authUser = "067.9721097213";
-		final String authPassword = "kshitizkmr091";
-		Authenticator.setDefault(new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(authUser, authPassword
-						.toCharArray());
-			}
-		});
-
-		System.setProperty("http.proxyUser", authUser);
-		System.setProperty("http.proxyPassword", authPassword);
 	}
 
 	// Called when table row selection changes.
