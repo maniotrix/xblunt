@@ -8,10 +8,10 @@ import javax.swing.table.*;
 class DownloadsTableModel extends AbstractTableModel implements Observer {
 	// These are the names for the table's columns.
 	private static final String[] columnNames = { "URL", "Size", "Progress",
-			"Status" };
+			"Status","Rate(KiB/s)"};
 	// These are the classes for each column's values.
 	private static final Class[] columnClasses = { String.class, String.class,
-			JProgressBar.class, String.class };
+			JProgressBar.class, String.class,String.class };
 	// The table's list of downloads.
 	private ArrayList<Download> downloadList = new ArrayList<Download>();
 
@@ -69,6 +69,8 @@ class DownloadsTableModel extends AbstractTableModel implements Observer {
 			return new Float(download.getprogress());
 		case 3: // Status
 			return Download.STATUSES[download.getstatus()];
+		case 4:
+			return new Float(download.getspeed());
 		}
 		return "";
 	}

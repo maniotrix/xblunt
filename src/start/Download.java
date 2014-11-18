@@ -37,9 +37,10 @@ public class Download extends java.util.Observable implements
 	RandomAccessFile[] thread_file;
 
 	private URL url;// url of file
-	private long filesize;// size of file
+	private long filesize, downloadstartTime;// size of file
 	private int status;// status of download
-	private long downloaded, progress;// no of bytes downloaded
+	private long downloaded, progress, downprogress, timeprogress;// no of bytes
+																	// downloaded
 	private HttpsURLConnection connectionhttps;
 	private HttpURLConnection connectionhttp;
 	Thread thread;
@@ -71,6 +72,12 @@ public class Download extends java.util.Observable implements
 			temp += thread_data[i];
 		}
 		this.progress = temp;
+		if (System.nanoTime() - this.downloadstartTime >= 1000000000) {
+			this.downprogress = progress - this.timeprogress;
+			downloadstartTime = System.nanoTime();
+			this.timeprogress=progress;
+		}
+		
 
 		this.statechanged();
 		// System.out.println("downloaded = " + downloaded);
@@ -80,6 +87,13 @@ public class Download extends java.util.Observable implements
 
 	public long getsize() {
 		return filesize;
+	}
+
+	public float getspeed() {
+		if(status==Downloading)
+		return (float)(this.downprogress/1024);
+		else 
+			return 0;
 	}
 
 	public float getprogress() {
@@ -172,6 +186,7 @@ public class Download extends java.util.Observable implements
 		thread = new Thread(this);
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
+		this.timeprogress = 0;
 
 	}
 
@@ -348,7 +363,6 @@ public class Download extends java.util.Observable implements
 			}
 
 			System.out.println("Downloading...status= " + this.getstatus());
-
 			// wait for threads to complete
 			for (int i = 0, j = 0; i < numthreads; i++) {
 				System.out.println(" data error occured" + "status ="
@@ -359,6 +373,7 @@ public class Download extends java.util.Observable implements
 
 			}
 			System.out.println("opening file");
+
 			// open file and seek to the end of it
 			if (this.status == Downloading) {
 				if (this.type == http)

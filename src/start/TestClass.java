@@ -34,10 +34,10 @@ public class TestClass {
 		try {
 			verifiedUrl = new URL(url);
 			if (url.toLowerCase().startsWith("https://")) {
-				useProxyhttps();
+				useProxyhttps16();
 			}
 			if (url.toLowerCase().startsWith("http://")) {
-				useProxyhttp();
+				useProxyhttp16();
 			}
 
 		} catch (Exception e) {
@@ -72,7 +72,7 @@ public class TestClass {
 
 	public static void useProxyhttp() {
 
-		String host = "10.1.1.18";
+		String host = "10.1.1.19";
 		String port = "80";
 		System.out.println("Using proxy: " + host + ":" + port);
 		System.setProperty("http.proxyHost", host);
