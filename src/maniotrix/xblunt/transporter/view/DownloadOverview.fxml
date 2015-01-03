@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane minHeight="600.0" minWidth="600.0" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.DownloadOverviewController">
+   <children>
+      <SplitPane dividerPositions="0.7408026755852842" layoutX="197.0" layoutY="80.0" orientation="VERTICAL" prefHeight="600.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <TableView fx:id="DownloadTable" layoutX="124.0" layoutY="107.0" prefHeight="439.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn fx:id="urlColumn" prefWidth="631.0" sortable="false" text="Name" />
+                      <TableColumn fx:id="sizeColumn" minWidth="0.0" prefWidth="261.0" sortable="false" text="Size" />
+                        <TableColumn fx:id="progressColumn" prefWidth="149.0" sortable="false" text="Progress(%)" />
+                        <TableColumn fx:id="speedColumn" prefWidth="145.0" sortable="false" text="Speed" />
+                        <TableColumn fx:id="statusColumn" prefWidth="177.0" sortable="false" text="Status" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <HBox layoutX="1022.0" layoutY="49.0" spacing="5.0">
+                     <children>
+                        <Button fx:id="pauseButton" layoutX="204.0" layoutY="76.0" mnemonicParsing="false" onAction="#handlePauseButton" text="Pause" />
+                        <Button fx:id="resumeButton" layoutX="289.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleResumeButton" text="Resume" />
+                        <Button fx:id="cancelButton" layoutX="383.0" layoutY="78.0" mnemonicParsing="false" onAction="#handleCancelButton" text="Cancel" />
+                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearButton" text="Clear" />
+                     </children>
+                     <effect>
+                        <Reflection />
+                     </effect>
+                  </HBox>
+                  <TextField fx:id="urlArea" layoutX="111.0" layoutY="49.0" prefHeight="25.0" prefWidth="599.0" promptText="url" />
+                  <Button fx:id="addButton" layoutX="710.0" layoutY="85.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="25.0" prefWidth="92.0" text="Add">
+                     <effect>
+                        <Reflection />
+                     </effect>
+                  </Button>
+                  <Label alignment="CENTER" layoutX="53.0" layoutY="49.0" prefHeight="25.0" prefWidth="57.0" text="URL :" textAlignment="JUSTIFY" underline="true">
+                     <effect>
+                        <Reflection />
+                     </effect>
+                  </Label>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
