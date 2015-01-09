@@ -1,0 +1,5 @@
+refrenced libraries:
+
+controlsfx-8.20.8.jar
+eclipselink.jar
+javax.persistence.jar(in j2ee)

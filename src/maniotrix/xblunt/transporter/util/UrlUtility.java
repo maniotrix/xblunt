@@ -11,13 +11,14 @@ public class UrlUtility {
 
 			try {
 				verifiedUrl = new URL(url);
+				System.out.println(verifiedUrl.toString());
 
 			} catch (Exception e) {
 				return null;
 			}
 		}
 		// Make sure URL specifies a file.
-		if (verifiedUrl.getFile().length() < 2)
+		if ( verifiedUrl!=null && verifiedUrl.getFile().length() < 2)
 			return null;
 		return verifiedUrl;
 	}

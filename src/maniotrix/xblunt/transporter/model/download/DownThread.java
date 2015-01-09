@@ -3,9 +3,26 @@ package maniotrix.xblunt.transporter.model.download;
 import java.io.*;
 import java.net.*;
 
-import maniotrix.xblunt.transporter.util.FileUtility;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.*;
 
-public class DownThread extends Thread {
+import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
+
+import maniotrix.xblunt.transporter.util.FileUtility;
+//@XmlRootElement()
+//@XmlAccessorType(XmlAccessType.FIELD)
+//@Entity
+public class DownThread extends Thread{
+	/**
+	 * 
+	 */
+	//@Id private static final long serialVersionUID = 3419935766823909577L;
+	/*@OneToOne
+    @JoinColumn(name="ID")
+    @MapsId
+	@XmlInverseReference(mappedBy = "threads")*/
 	private Download mainthread;
 	private long downloaded, start, size;
 	private int threadno;
@@ -16,7 +33,7 @@ public class DownThread extends Thread {
 	HttpURLConnection connectionhttp;
 
 	public DownThread(URL url, int numthreads, int threadNo, long l, long m,
-			Download MainThread) {
+			Download MainThread,RandomAccessFile file) {
 		this.url = url;
 		this.start = l;
 		this.end = m;
@@ -24,11 +41,14 @@ public class DownThread extends Thread {
 		this.Numthreads = numthreads;
 		this.size = -1;
 		this.mainthread = MainThread;
+		this.file=file;
 		// file = mainthread.thread_file[threadno];
 		// System.out.println(size);
 
 	}
-
+	public DownThread(){
+		
+	}
 	private void dataexch() {
 		mainthread.dataexch();
 
@@ -51,6 +71,7 @@ public class DownThread extends Thread {
 				connectionhttp = (HttpURLConnection) url.openConnection();
 				System.out.println("trying to connect(Thread)" + "" + threadno);
 				if(end-start <=0)return;
+				System.out.println("requesting bytes");
 				// Specify what portion of file to download.
 				connectionhttp.setRequestProperty("Range", "bytes=" + start
 						+ "-" + end);
@@ -87,7 +108,7 @@ public class DownThread extends Thread {
 				if (size == -1)
 					size = contentlength;
 
-				if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {
+			/*	if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());
 					System.out.println("file seeked at filepointer");
@@ -98,7 +119,16 @@ public class DownThread extends Thread {
 					mainthread.thread_file[threadno] = file;
 					file.seek(downloaded);
 					System.out.println("file seeked at 0");
+				}*/
+				
+				//file=mainthread.thread_file[threadno];
+				if(file==null){
+					System.out.println("File is null");
 				}
+				file.seek(file.getFilePointer());
+				System.out.println("Thread file seeked at"+file.getFilePointer());
+				
+				
 				stream = connectionhttp.getInputStream();
 			
 
@@ -127,7 +157,6 @@ public class DownThread extends Thread {
 			System.out
 					.println("Unhandled exception encountered during threaded HTTP exchange.");
 			e.printStackTrace();
-			 //mainthread.error();
 		}
 		// close connection to server
 		if (stream != null) {
@@ -148,5 +177,65 @@ public class DownThread extends Thread {
 			return file;
 		else
 			return null;
+	}
+	public Download getMainthread() {
+		return mainthread;
+	}
+	public void setMainthread(Download mainthread) {
+		this.mainthread = mainthread;
+	}
+	public long getDownloaded() {
+		return downloaded;
+	}
+	public void setDownloaded(long downloaded) {
+		this.downloaded = downloaded;
+	}
+	public long getStart() {
+		return start;
+	}
+	public void setStart(long start) {
+		this.start = start;
+	}
+	public long getSize() {
+		return size;
+	}
+	public void setSize(long size) {
+		this.size = size;
+	}
+	public int getThreadno() {
+		return threadno;
+	}
+	public void setThreadno(int threadno) {
+		this.threadno = threadno;
+	}
+	public int getNumthreads() {
+		return Numthreads;
+	}
+	public void setNumthreads(int numthreads) {
+		Numthreads = numthreads;
+	}
+	public URL getUrl() {
+		return url;
+	}
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+	public long getEnd() {
+		return end;
+	}
+	public void setEnd(long end) {
+		this.end = end;
+	}
+	public RandomAccessFile getFile() {
+		return file;
+	}
+	public void setFile(RandomAccessFile file) {
+		this.file = file;
+	}
+	public HttpURLConnection getConnectionhttp() {
+		return connectionhttp;
+	}
+	public void setConnectionhttp(HttpURLConnection connectionhttp) {
+		this.connectionhttp = connectionhttp;
 	}
 }

@@ -3,49 +3,87 @@ package maniotrix.xblunt.transporter.model.download;
 import java.io.*;
 import java.net.*;
 
-import maniotrix.xblunt.transporter.model.DownloadModel;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
+
 import maniotrix.xblunt.transporter.util.FileUtility;
+import maniotrix.xblunt.transporter.util.UrlUtility;
 
 //this class downloads a file from a url
+@XmlRootElement()
+// @XmlAccessorType(XmlAccessType.FIELD)
+@Entity
+public class Download implements java.lang.Runnable, Serializable {
 
-public class Download implements
-		java.lang.Runnable {
+	public String getFilepath() {
+		return filepath;
+	}
+
+	public void setFilepath(String filepath) {
+		this.filepath = filepath;
+	}
+
+	/**
+	 * 
+	 */
+	@Id
+	private static final long serialVersionUID = -8692158647815575107L;
+	/**
+	 * 
+	 */
 
 	// max size of download buffer
 	public static final int MAX_BUFFER_SIZE = 1024 * 8;
+	@OneToOne
+	@JoinColumn(name = "ID")
+	@MapsId
+	@XmlInverseReference(mappedBy = "download")
 	DownloadModel observer;
 	boolean ifresumed = true;
 	boolean ifactive = false;
 	private int numthreads, contentlength;
+	@XmlTransient
 	public DownThread[] threads;
 	long[] thread_start;
 	long[] thread_data;
-	long[] thread_size;
 	long[] thread_temp;
-	RandomAccessFile[] thread_file;
+	//@XmlTransient
+	//RandomAccessFile[] thread_file;
 
 	private URL url;// url of file
 	private long filesize, downloadstartTime;// size of file
+	@XmlElement(required = true)
 	private Status status;// status of download
 	private long progress, downprogress, timeprogress;// no of bytes
 														// downloaded
 	private HttpURLConnection connectionhttp;
 	Thread thread;
 
+	String filepath;
+
 	// constructor for download
-	public Download(int numthread, URL url,DownloadModel model) {
-		this.observer=model;
+	public Download(int numthread, URL url, DownloadModel model, String filepath) {
+		this.observer = model;
 		this.url = url;
 		filesize = -1;
 		status = Status.Downloading;
+		this.filepath = filepath;
 		thread_start = new long[numthread];
 		thread_data = new long[numthread];
-		thread_size = new long[numthread];
 		thread_temp = new long[numthread];
-		thread_file = new RandomAccessFile[numthread];
+		//thread_file = new RandomAccessFile[numthread];
 		// start download
 		download(numthread);
 
+	}
+
+	public Download() {
 	}
 
 	public String geturl() {
@@ -94,9 +132,17 @@ public class Download implements
 		ifactive = false;
 		ifresumed = false;
 		status = Status.Paused;
-		dataexch();
+		this.downprogress=0l;
+		// dataexch();
 		statechanged();
 
+		try {
+			Thread.sleep(2000);
+			dataexch();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// interrupting threads if alive
 		if (thread != null && thread.isAlive()) {
 			connectionhttp.disconnect();
@@ -111,6 +157,7 @@ public class Download implements
 			}
 		} catch (Exception e) {
 		}
+		dataexch();
 
 	}
 
@@ -129,6 +176,27 @@ public class Download implements
 	public void cancel() {
 		status = Status.Cancelled;
 		statechanged();
+		try {
+			Thread.sleep(2000);
+			dataexch();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// interrupting threads if alive
+		if (thread != null && thread.isAlive()) {
+			connectionhttp.disconnect();
+			System.out.println("disconnected threads ");
+		}
+		try {
+			for (int i = 0; i < numthreads; i++) {
+				while (threads[i] != null && threads[i].isAlive()) {
+					threads[i].connectionhttp.disconnect();
+
+				}
+			}
+		} catch (Exception e) {
+		}
 
 	}
 
@@ -142,7 +210,11 @@ public class Download implements
 
 	// mark download an error
 	public void error() {
-		status = Status.Error;
+		if (status != Status.Paused) {
+			status = Status.Error;
+		} else {
+			status = Status.Error;
+		}
 		statechanged();
 	}
 
@@ -155,15 +227,40 @@ public class Download implements
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
 		this.timeprogress = 0;
+		//this.downprogress=0;
+		//organiseThreadFiles();
 
 	}
 
+	/*public void organiseThreadFiles(RandomAccessFile[] thread_file) {
+		String mypath=filepath;
+		for (int i = 0; i < numthreads; i++) {
+			try {
+				if(mypath!=null ){
+				//mypath=	mypath + "_" + i;
+				//this.thread_file[i]=null;
+				thread_file[i] = new RandomAccessFile(mypath+ "_" + i, "rw");
+				thread_file[i].seek(thread_file[i].length());
+				System.out.println("File Pointer seeked"
+						+ thread_file[i].getFilePointer());}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+		}
+	}*/
 
+	//@SuppressWarnings("null")
 	@Override
 	public void run() {
 		RandomAccessFile file = null;
+		RandomAccessFile[] thread_file = new RandomAccessFile[numthreads];
+		/*for(int i=0;i<numthreads;i++){
+			thread_file[i]=null;
+		}*/
 		InputStream stream = null;
+		statechanged();
 
 		try {
 			// Open connection to URL.
@@ -178,6 +275,7 @@ public class Download implements
 				connectionhttp.connect();
 			} catch (IOException e) {
 				System.out.println("connection error");
+				observer.setStatus(e.getMessage());
 			}
 			if (ifresumed == false) {
 				System.out.println(" mainthread died");
@@ -188,23 +286,58 @@ public class Download implements
 			if (ResponseCode / 100 != 2) {
 
 				System.out.println("unwanted response code= " + ResponseCode);
+				observer.setStatus("Http Response Error");
 				return;
 			}
 			// check for valid content length
 			this.contentlength = connectionhttp.getContentLength();
-			if (contentlength < 1)
-				return;
+			if (contentlength < 1){
+				observer.setStatus("File is less than 1 byte");
+				return;}
 
 			/*
 			 * set the length of download if it is not already set
 			 */
 			if (filesize == -1 || filesize != contentlength) {
 				filesize = contentlength;
-				statechanged();
+				// statechanged();
+				observer.setSize(getsize().toString());
 				System.out.println("connected" + filesize + "status= "
 						+ this.getstatus());
 			}
 			System.out.println("connected" + " and filesize= " + filesize);
+			System.out.println(filepath);
+
+			if (filepath.toLowerCase().startsWith("http")) {
+				System.out.println("filepath same as url");
+				filepath = FileUtility.getFileName(connectionhttp);
+				observer.setFilename(filepath);
+			}
+			try{
+				
+			//organiseThreadFiles(thread_file);
+				for (int i = 0; i < numthreads; i++) {
+					try {
+						if(filepath!=null ){
+						//mypath=	mypath + "_" + i;
+						//this.thread_file[i]=null;
+						thread_file[i] = new RandomAccessFile(filepath+ "_" + i, "rw");
+						thread_file[i].seek(thread_file[i].length());
+						System.out.println("File Pointer seeked"
+								+ thread_file[i].getFilePointer());}
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			}
+			catch(Exception e){
+				observer.setStatus("file not found");
+				return;
+			}
+			
+
 			// initialize DownloadThread and byte arrays
 			this.threads = new DownThread[numthreads];
 
@@ -213,7 +346,7 @@ public class Download implements
 
 				threads[i] = new DownThread(url, numthreads, i,
 						get_thread_data(i),
-						(((filesize * (i + 1)) / numthreads) - 1), this);
+						(((filesize * (i + 1)) / numthreads) - 1), this,thread_file[i]);
 				threads[i].start();
 			}
 			System.out.println("Downloading...status= " + this.getstatus());
@@ -228,8 +361,7 @@ public class Download implements
 
 			// open file and seek to the end of it
 			if (this.status == Status.Downloading) {
-				file = new RandomAccessFile(
-						FileUtility.getFileName(connectionhttp), "rw");
+				file = new RandomAccessFile(filepath, "rw");
 				file.seek(0);
 				for (int i = 0; i < numthreads; i++) {
 					thread_file[i].seek(0);
@@ -273,26 +405,36 @@ public class Download implements
 							+ thread_file[i].length() + " "
 							+ file.getFilePointer());
 					thread_file[i].close();
-					new File(FileUtility.getFileName(connectionhttp) + "_" + i)
-							.delete();
+					new File(filepath + "_" + i).delete();
 				}
 			}
 			/*
 			 * change status to finished if this point was reached because
 			 * downloading was finished
 			 */
-			if (status == Status.Downloading) {
+			if (status == Status.Downloading && file.length()==filesize) {
 				status = Status.Completed;
 				System.out.println("error occured" + "status ="
 						+ this.getstatus());
 				statechanged();
 
 			}
+			else
+			{
+				for(int i=0;i<numthreads;i++){
+					thread_file[i].close();
+					thread_file[i]=null;
+				}
+				statechanged();
+			}
 
 		} catch (Exception e) {
-			System.out.println("error occured");
-			error();
+			System.out.println("error occured"+e.getMessage());
+			statechanged();
 			e.printStackTrace();
+			observer.setStatus(e.getMessage());
+			error();
+			
 
 		} finally {
 			// close file
@@ -304,6 +446,7 @@ public class Download implements
 				}
 
 			} else
+				// error();
 				System.out.println("mainthread exited");
 			// close connection to server
 			if (stream != null) {
@@ -320,6 +463,163 @@ public class Download implements
 	// notify observers that its state has changed
 	public void statechanged() {
 		this.observer.updateModel();
+	}
+
+	public DownloadModel getObserver() {
+		return observer;
+	}
+
+	public void setObserver(DownloadModel observer) {
+		this.observer = observer;
+	}
+
+	public boolean isIfresumed() {
+		return ifresumed;
+	}
+
+	public void setIfresumed(boolean ifresumed) {
+		this.ifresumed = ifresumed;
+	}
+
+	public boolean isIfactive() {
+		return ifactive;
+	}
+
+	public void setIfactive(boolean ifactive) {
+		this.ifactive = ifactive;
+	}
+
+	public int getNumthreads() {
+		return numthreads;
+	}
+
+	public void setNumthreads(int numthreads) {
+		this.numthreads = numthreads;
+	}
+
+	public int getContentlength() {
+		return contentlength;
+	}
+
+	public void setContentlength(int contentlength) {
+		this.contentlength = contentlength;
+	}
+
+	@XmlTransient
+	public DownThread[] getThreads() {
+		return threads;
+	}
+
+	public void setThreads(DownThread[] threads) {
+		this.threads = threads;
+	}
+
+	public long[] getThread_start() {
+		return thread_start;
+	}
+
+	public void setThread_start(long[] thread_start) {
+		this.thread_start = thread_start;
+	}
+
+	public long[] getThread_data() {
+		return thread_data;
+	}
+
+	public void setThread_data(long[] thread_data) {
+		this.thread_data = thread_data;
+	}
+
+	public long[] getThread_temp() {
+		return thread_temp;
+	}
+
+	public void setThread_temp(long[] thread_temp) {
+		this.thread_temp = thread_temp;
+	}
+	/*//@XmlTransient
+	public RandomAccessFile[] getThread_file() {
+		return thread_file;
+	}
+
+	public void setThread_file(RandomAccessFile[] thread_file) {
+		this.thread_file = thread_file;
+	}
+*/
+	public URL getUrl() {
+		return url;
+	}
+
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+
+	public long getFilesize() {
+		return filesize;
+	}
+
+	public void setFilesize(long filesize) {
+		this.filesize = filesize;
+	}
+
+	public long getDownloadstartTime() {
+		return downloadstartTime;
+	}
+
+	public void setDownloadstartTime(long downloadstartTime) {
+		this.downloadstartTime = downloadstartTime;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public long getProgress() {
+		return progress;
+	}
+
+	public void setProgress(long progress) {
+		this.progress = progress;
+	}
+
+	public long getDownprogress() {
+		return downprogress;
+	}
+
+	public void setDownprogress(long downprogress) {
+		this.downprogress = downprogress;
+	}
+
+	public long getTimeprogress() {
+		return timeprogress;
+	}
+
+	public void setTimeprogress(long timeprogress) {
+		this.timeprogress = timeprogress;
+	}
+
+	public HttpURLConnection getConnectionhttp() {
+		return connectionhttp;
+	}
+
+	public void setConnectionhttp(HttpURLConnection connectionhttp) {
+		this.connectionhttp = connectionhttp;
+	}
+
+	public Thread getThread() {
+		return thread;
+	}
+
+	public void setThread(Thread thread) {
+		this.thread = thread;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

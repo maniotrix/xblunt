@@ -125,5 +125,88 @@ public class Proxy {
 		System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
 		System.setProperty("socks.nonProxyHosts", "localhost|127.0.0.1");
 	}
+	public static void useProxyhttps() {
+
+		String host = "10.1.1.19";
+		String port = "80";
+		System.out.println("Using proxy: " + host + ":" + port);
+		System.setProperty("https.proxyHost", host);
+		System.setProperty("https.proxyPort", port);
+		System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
+		final String authUser = "506.13135079";
+		final String authPassword = "iitcc2013";
+		Authenticator.setDefault(new Authenticator() {
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(authUser, authPassword
+						.toCharArray());
+			}
+		});
+
+		System.setProperty("https.proxyUser", authUser);
+		System.setProperty("https.proxyPassword", authPassword);
+	}
+
+	public static void useProxyhttp() {
+
+		String host = "10.1.1.19";
+		String port = "80";
+		System.out.println("Using proxy: " + host + ":" + port);
+		System.setProperty("http.proxyHost", host);
+		System.setProperty("http.proxyPort", port);
+		System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
+		final String authUser = "506.13135079";
+		final String authPassword = "iitcc2013";
+		Authenticator.setDefault(new Authenticator() {
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(authUser, authPassword
+						.toCharArray());
+			}
+		});
+
+		System.setProperty("http.proxyUser", authUser);
+		System.setProperty("http.proxyPassword", authPassword);
+	}
+
+	public static void useProxyhttps16() {
+
+		String host = "10.1.1.16";
+		String port = "80";
+		System.out.println("Using proxy: " + host + ":" + port);
+		System.setProperty("https.proxyHost", host);
+		System.setProperty("https.proxyPort", port);
+		System.setProperty("https.nonProxyHosts", "localhost|127.0.0.1");
+		final String authUser = "067.9721097213";
+		final String authPassword = "kshitizkmr091";
+		Authenticator.setDefault(new Authenticator() {
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(authUser, authPassword
+						.toCharArray());
+			}
+		});
+
+		System.setProperty("https.proxyUser", authUser);
+		System.setProperty("https.proxyPassword", authPassword);
+	}
+
+	public static void useProxyhttp16() {
+
+		String host = "10.1.1.16";
+		String port = "80";
+		System.out.println("Using proxy: " + host + ":" + port);
+		System.setProperty("http.proxyHost", host);
+		System.setProperty("http.proxyPort", port);
+		System.setProperty("http.nonProxyHosts", "localhost|127.0.0.1");
+		final String authUser = "067.9721097213";
+		final String authPassword = "kshitizkmr091";
+		Authenticator.setDefault(new Authenticator() {
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(authUser, authPassword
+						.toCharArray());
+			}
+		});
+
+		System.setProperty("http.proxyUser", authUser);
+		System.setProperty("http.proxyPassword", authPassword);
+	}
 	
 }

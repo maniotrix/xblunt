@@ -1,5 +1,6 @@
 package maniotrix.xblunt.transporter.util;
 
+//import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
@@ -34,7 +35,7 @@ public class FileUtility {
 			while (st.hasMoreTokens())
 				fileName = st.nextToken();
 		}
-
+       //if(FileUtility.checkFileExistence(fileName))
 		return fileName;
 	}
 
@@ -71,4 +72,13 @@ public class FileUtility {
 		// not found
 		return null;
 	}
+	/*public static boolean checkFileExistence(String tempName){
+		File file=new File(tempName);
+		return file.exists();
+	}*/
+	
+	/*public static String getCountedName(String FileName){
+		if(FileUtility.checkFileExistence(FileName)==true)
+		
+	}*/
 }

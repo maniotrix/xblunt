@@ -1,7 +1,8 @@
 # XBlunt
+JDK-8u25 or later is required
 
 
+##Referenced Libraries:
+* Can be found in lib folder.
 
-
-	*JDK-8u25 or later is required 
-
+Link for [Eclipselink](http://www.eclipse.org/eclipselink)

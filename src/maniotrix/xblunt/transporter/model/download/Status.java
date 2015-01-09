@@ -1,11 +1,14 @@
 package maniotrix.xblunt.transporter.model.download;
 
+import javax.xml.bind.annotation.XmlEnum;
+
 /**
  * Enumeration Type for tracking status of each controller instance.
  * 
  * @author maniotrix
  *
  */
+@XmlEnum
 public enum Status {
 	Downloading(0), Completed(1), Paused(2), Cancelled(4), Error(5);
 	private int status;
