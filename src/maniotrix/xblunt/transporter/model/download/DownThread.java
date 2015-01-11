@@ -10,6 +10,7 @@ import javax.persistence.*;
 
 import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 
+import maniotrix.xblunt.transporter.MainApp;
 import maniotrix.xblunt.transporter.util.FileUtility;
 //@XmlRootElement()
 //@XmlAccessorType(XmlAccessType.FIELD)
@@ -162,11 +163,12 @@ public class DownThread extends Thread{
 		if (stream != null) {
 			try {
 				stream.close();
+				connectionhttp.disconnect();
 				System.out.println("stream closed and status="
 						+ mainthread.getstatus());
 
 			} catch (Exception e) {
-				System.out.println("stream closed");
+				System.out.println("stream closed with error");
 			}
 		}
 	}

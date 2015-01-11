@@ -1,8 +1,12 @@
 package maniotrix.xblunt.transporter.view;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 import maniotrix.xblunt.transporter.MainApp;
 import maniotrix.xblunt.transporter.model.download.DownloadModel;
 import maniotrix.xblunt.transporter.model.download.Status;
+import maniotrix.xblunt.transporter.util.FileUtility;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -10,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
 import javafx.stage.FileChooser;
 
 public class DownloadOverviewController {
@@ -41,8 +46,7 @@ public class DownloadOverviewController {
 	private TextField urlArea;
 
 	// private DownloadModel selectedDownloadModel = new DownloadModel();
-	//public static StringProperty ControllerStatus;
-	
+	// public static StringProperty ControllerStatus;
 
 	// Reference to the main application.
 	private MainApp mainApp;
@@ -52,15 +56,15 @@ public class DownloadOverviewController {
 	 * method.
 	 */
 	public DownloadOverviewController() {
-		//ControllerStatus = new SimpleStringProperty();
+		// ControllerStatus = new SimpleStringProperty();
 	}
-/*
-	public void bindButtons() {
-		pauseButton.disableProperty().bind(
-				ControllerStatus.isNotEqualTo(Status.Downloading.toString()));
-		resumeButton.disableProperty().bind(
-				ControllerStatus.isNotEqualTo(Status.Paused.toString()));
-	}*/
+
+	/*
+	 * public void bindButtons() { pauseButton.disableProperty().bind(
+	 * ControllerStatus.isNotEqualTo(Status.Downloading.toString()));
+	 * resumeButton.disableProperty().bind(
+	 * ControllerStatus.isNotEqualTo(Status.Paused.toString())); }
+	 */
 
 	/**
 	 * Initializes the controller class. This method is automatically called
@@ -80,19 +84,30 @@ public class DownloadOverviewController {
 		statusColumn.setCellValueFactory(cellData -> cellData.getValue()
 				.StatusProperty());
 
-		//bindButtons();
+		// bindButtons();
 		// Listen for selection changes and show the download details when
 		// changed.
-		/*ControllerStatus.addListener((observable) -> {
-			//MainApp.savedownloadDataToFile();
+		/*
+		 * ControllerStatus.addListener((observable) -> {
+		 * //MainApp.savedownloadDataToFile(); });
+		 */
+		/*
+		 * DownloadTable.getSelectionModel().selectedItemProperty()
+		 * .addListener((observable) -> { if (observable != null) {
+		 * ChangeStatus(); } });
+		 */
+		/**
+		 * will be included in next version. 
+		 */
+		/*DownloadTable.setOnMouseClicked(event -> {
+			if(event.getButton().equals(MouseButton.PRIMARY)){
+	            if(event.getClickCount() == 2){
+	            	 openSelected();
+	                System.out.println("Double clicked");
+	                //openSelected();
+	            }
+	        }
 		});*/
-/*		DownloadTable.getSelectionModel().selectedItemProperty()
-				.addListener((observable) -> {
-					if (observable != null) {
-						ChangeStatus();
-					}
-				});*/
-		
 
 	}
 
@@ -108,68 +123,62 @@ public class DownloadOverviewController {
 	public MainApp getMainApp() {
 		return this.mainApp;
 	}
-	
-	/*public void ChangeStatus(){
-		DownloadModel selected;
-		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
-		if (selected != null) {
-			ControllerStatus.set(selected.getStatus());
-			//mainApp.savedownloadDataToFile();
-		}
-	}*/
+
+	/*
+	 * public void ChangeStatus(){ DownloadModel selected; selected =
+	 * this.DownloadTable.getSelectionModel().getSelectedItem(); if (selected !=
+	 * null) { ControllerStatus.set(selected.getStatus());
+	 * //mainApp.savedownloadDataToFile(); } }
+	 */
 	/**
 	 * add new download to the table.
 	 */
 	public void handleAddButton() {
-		String url=this.urlArea.getText();
-		if (url!= null && verifyUrl(url)==false)
+		String url = this.urlArea.getText();
+		if (url != null && verifyUrl(url) == false)
 			return;
 		FileChooser fileChooser = new FileChooser();
-		String filepath=null;
+		String filepath = null;
 		try {
-			filepath = fileChooser.showSaveDialog(mainApp.getPrimaryStage()).toString();
+			filepath = fileChooser.showSaveDialog(mainApp.getPrimaryStage())
+					.toString();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (filepath!=null) {
-			mainApp.getdownloadData().add(
-					new DownloadModel(url, 8,filepath));
+		if (filepath != null) {
+			mainApp.getdownloadData().add(new DownloadModel(url, 8, filepath));
+		} else {
+			if (filepath == null)
+				mainApp.getdownloadData().add(new DownloadModel(url, 8, url));
 		}
-		else
-			{
-			if(filepath==null)
-			mainApp.getdownloadData().add(
-					new DownloadModel(url, 8,url));
-			}
 		// Add observable list data to the table
 		DownloadTable.setItems(mainApp.getdownloadData());
 		this.urlArea.setText("");
 		this.urlArea.setPromptText("url");
-		//mainApp.savedownloadDataToFile();
+		// mainApp.savedownloadDataToFile();
 	}
 
 	// Pause the selected download.
 	public void handlePauseButton() {
-		//ControllerStatus.set(Status.Paused.toString());
 		DownloadModel selected;
 		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
 		if (selected != null) {
 			selected.getDownload().pause();
-			//ControllerStatus.set(selected.getStatus());
-			//mainApp.savedownloadDataToFile();
+			// ControllerStatus.set(selected.getStatus());
+			// mainApp.savedownloadDataToFile();
 		}
+		
 	}
 
 	// Resume the selected download.
 	public void handleResumeButton() {
-		//ControllerStatus.set(Status.Downloading.toString());
 		DownloadModel selected;
 		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
 		if (selected != null) {
 			selected.getDownload().resume();
-			//ControllerStatus.set(selected.getStatus());
-			//mainApp.savedownloadDataToFile();
+			// ControllerStatus.set(selected.getStatus());
+			// mainApp.savedownloadDataToFile();
 		}
 	}
 
@@ -177,10 +186,12 @@ public class DownloadOverviewController {
 	public void handleCancelButton() {
 		DownloadModel selected;
 		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
+		/*if (selected.getStatus() == Status.Cancelled.toString())
+			return;*/
 		if (selected != null) {
 			selected.getDownload().cancel();
-			//ControllerStatus.set(selected.getStatus());
-			//mainApp.savedownloadDataToFile();
+			// ControllerStatus.set(selected.getStatus());
+			// mainApp.savedownloadDataToFile();
 		}
 
 	}
@@ -198,51 +209,60 @@ public class DownloadOverviewController {
 		}
 		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
 		if (selected != null) {
-			//ControllerStatus.set(selected.getStatus());
+			// ControllerStatus.set(selected.getStatus());
 		}
-		//System.out.println("No. of Items in table= "+)
-		else 
-		MainApp.savedownloadDataToFile();
+		// System.out.println("No. of Items in table= "+)
+		else
+			MainApp.savedownloadDataToFile();
 
 	}
 
 	public void handleRestartButton() {
-		//ControllerStatus.set(Status.Downloading.toString());
+		// ControllerStatus.set(Status.Downloading.toString());
 		DownloadModel selected;
 		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
 		if (selected != null) {
 			selected.resetDownload();
 			selected = this.DownloadTable.getSelectionModel().getSelectedItem();
-			//ControllerStatus.set(Status.Downloading.toString());
-			//mainApp.savedownloadDataToFile();
+			// ControllerStatus.set(Status.Downloading.toString());
+			// mainApp.savedownloadDataToFile();
 		}
 
 	}
-	
-	public static boolean verifyUrl(String url){
+
+	public static boolean verifyUrl(String url) {
 		if (url.toLowerCase().startsWith("https://")
 				|| url.toLowerCase().startsWith("http://"))
-		return true;
+			return true;
 		else
 			return false;
 	}
+
 	public TableView<DownloadModel> getDownloadTable() {
 		return DownloadTable;
 	}
 	
-/*	public String getControllerStatus() {
-		return ControllerStatus.get();
-	}
-	
-	public StringProperty getControllerStatusProperty() {
-		return ControllerStatus;
-	}
-	
-	public void setControllerStatus(String status) {
-		this.ControllerStatus.set(status);
-	}
-
-	public void setControllerStatus(StringProperty controllerStatus) {
-		ControllerStatus = controllerStatus;
+/*	//include in next version 
+	public void openSelected(){
+		DownloadModel selected;
+		selected = this.DownloadTable.getSelectionModel().getSelectedItem();
+		if(selected.getDownload().getStatus()==Status.Completed){
+			File file=Paths.get(selected.getFilename()).toFile();
+			FileUtility.openFile(file);
+			System.out.println("file opened");
+		}
+		
 	}*/
+	/*
+	 * public String getControllerStatus() { return ControllerStatus.get(); }
+	 * 
+	 * public StringProperty getControllerStatusProperty() { return
+	 * ControllerStatus; }
+	 * 
+	 * public void setControllerStatus(String status) {
+	 * this.ControllerStatus.set(status); }
+	 * 
+	 * public void setControllerStatus(StringProperty controllerStatus) {
+	 * ControllerStatus = controllerStatus; }
+	 */
 }

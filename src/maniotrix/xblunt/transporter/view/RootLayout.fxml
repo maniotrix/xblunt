@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-
-<BorderPane prefHeight="768.0" prefWidth="1366.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<BorderPane prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.ProxyEditController">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
+      <MenuBar BorderPane.alignment="CENTER_LEFT">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="Proxy">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+              <MenuItem mnemonicParsing="false" onAction="#handleDirect" text="Direct" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleSystem" text="System" />
+                  <Menu mnemonicParsing="false" text="Manual">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleHttp" text="Http/s" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleSocks" text="Socks" />
+                    </items>
+                  </Menu>
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleUpdateButton" text="Homepage / Update" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleReportButton" text="Help or Report Bugs" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleLicenseButton" text="License url" />
+              <MenuItem mnemonicParsing="false" onAction="#handleAboutButton" text="About App" />
             </items>
           </Menu>
         </menus>

@@ -77,7 +77,7 @@ public class DownloadModel implements Serializable {
 		this.size = new SimpleStringProperty(download.getsize().toString());
 		this.progress = new SimpleStringProperty(download.getprogress()
 				.toString());
-		this.speed = new SimpleStringProperty(download.getspeed().toString());
+		this.speed = new SimpleStringProperty(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
 		this.status = new SimpleStringProperty(download.getstatus().toString());
 		status.addListener(observable -> {
 			MainApp.savedownloadDataToFile();
@@ -88,8 +88,12 @@ public class DownloadModel implements Serializable {
 	public void updateModel() {
 		//setSize(download.getsize().toString());
 		setProgress(download.getprogress().toString());
-		setSpeed(download.getspeed().toString());
+		setSpeed(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
 		setStatus(download.getstatus().toString());
+	}
+	
+	public void cancelDownload(){
+		this.download=null;
 	}
 	
 	public void resetDownload() {

@@ -1,25 +1,17 @@
 package maniotrix.xblunt.transporter;
 
 import java.io.File;
-//import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-//import org.controlsfx.dialog.Dialogs;
-
-
-//import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
-
 import maniotrix.xblunt.transporter.model.download.DownloadModel;
 import maniotrix.xblunt.transporter.model.download.DownloadModelListWrapper;
 import maniotrix.xblunt.transporter.model.download.Status;
-import maniotrix.xblunt.transporter.util.Proxy;
 import maniotrix.xblunt.transporter.view.DownloadOverviewController;
+import maniotrix.xblunt.transporter.view.ProxyEditController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,33 +19,32 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 @SuppressWarnings("deprecation")
 public class MainApp extends Application {
 
-	private Stage primaryStage;
+	private static Stage primaryStage;
 	private BorderPane rootLayout;
 	/**
 	 * The data as an observable list of downloads.
 	 */
 	public static ObservableList<DownloadModel> downloadModelList = FXCollections
 			.observableArrayList();
-
+	
 	/**
 	 * Constructor
 	 */
 	public MainApp() {
-		MainApp.useProxySocks_v5();
-		//Proxy.useProxyhttps();Proxy.useProxyhttp();
 
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
-		this.primaryStage = primaryStage;
-		this.primaryStage.setTitle("Xblunt");
-		primaryStage.setOnCloseRequest((we) -> {
+		MainApp.primaryStage = primaryStage;
+		MainApp.primaryStage.setTitle("Xblunt");
+		MainApp.primaryStage.setOnCloseRequest((we) -> {
 			System.out.println("Stage is closing");
 			createCloseDialog();
 			try {
@@ -81,6 +72,7 @@ public class MainApp extends Application {
 		}
 		
 		setListConfig();
+		
 	}
 
 	@SuppressWarnings("deprecation")
@@ -88,7 +80,7 @@ public class MainApp extends Application {
 		Dialogs.create()
         .title("Xblunt")
         .masthead("Saving Data")
-        .message("Please wait while program is exiting safely......")
+        .message("Operation Complete.\nPress Ok to Exit Application")
         .showInformation();
 	}
 
@@ -138,7 +130,37 @@ public class MainApp extends Application {
 			e.printStackTrace();
 		}
 	}
+	
+	public static boolean showProxyEditor() {
+		try {
+			// Load the fxml file and create a new stage for the popup dialog.
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/Proxy.fxml"));
+			AnchorPane page = (AnchorPane) loader.load();
 
+			// Create the dialog Stage.
+			Stage dialogStage = new Stage();
+			dialogStage.setTitle("Proxy"+ProxyEditController.proxytype.toUpperCase());
+			dialogStage.initModality(Modality.WINDOW_MODAL);
+			dialogStage.initOwner(primaryStage);
+			//dialogStage.getIcons().add(new Image("file:resources/images/edit.png"));
+			Scene scene = new Scene(page);
+			dialogStage.setScene(scene);
+
+			// Set the person into the controller.
+			ProxyEditController controller = loader.getController();
+			controller.setDialogStage(dialogStage);
+			//controller.setMainApp(this);
+			// Show the dialog and wait until the user closes it
+			dialogStage.showAndWait();
+			
+			return controller.isOkClicked();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	/**
 	 * Returns the main stage.
 	 * 
@@ -203,10 +225,11 @@ public class MainApp extends Application {
 			 * "Could not load data from file:\n" + file.getPath())
 			 * .showException(e);
 			 */
+			//Dialogs.create().title("").masthead("").showTextInput("");
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Saves the current Download data to the specified file.
 	 * 

@@ -1,6 +1,8 @@
 package maniotrix.xblunt.transporter.util;
 
 //import java.io.File;
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
@@ -63,7 +65,7 @@ public class FileUtility {
 				// quotes.
 				try {
 					return a.substring(a.indexOf('\"') + 1, a.lastIndexOf('\"'));
-				} catch (StringIndexOutOfBoundsException e) {
+				} catch (Exception e) {
 					return a.substring(a.indexOf('=') + 1, a.length());
 				}
 			}
@@ -81,4 +83,59 @@ public class FileUtility {
 		if(FileUtility.checkFileExistence(FileName)==true)
 		
 	}*/
+	
+	public static void openFile(File file){
+		  if (!Desktop.isDesktopSupported()) {
+			    return ;
+			  }
+
+			  Desktop desktop = Desktop.getDesktop();
+
+			  try {
+				  if( desktop.isSupported(Desktop.Action.OPEN)){
+					 
+					  System.out.println("opening file");
+					   new Runnable() {
+						public void run() {
+							try {
+								 System.out.println("opened file");
+								desktop.open(file);
+								return;
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					};
+				  
+				  
+				  }
+			  } catch (Exception e) {
+				  e.printStackTrace();
+			    // Log an error
+			    return ;
+			  }
+			  //System.out.println("opening file");
+			  return ;
+	}
+	
+	public boolean editFile(final File file) {
+		  if (!Desktop.isDesktopSupported()) {
+		    return false;
+		  }
+
+		  Desktop desktop = Desktop.getDesktop();
+		  if (!desktop.isSupported(Desktop.Action.EDIT)) {
+		    return false;
+		  }
+
+		  try {
+		    desktop.edit(file);
+		  } catch (Exception e) {
+		    // Log an error
+		    return false;
+		  }
+
+		  return true;
+		}
 }

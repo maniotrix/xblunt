@@ -14,11 +14,11 @@
                <children>
                   <TableView fx:id="DownloadTable" layoutX="124.0" layoutY="107.0" prefHeight="439.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
-                      <TableColumn fx:id="urlColumn" prefWidth="631.0" sortable="false" text="Name" />
-                      <TableColumn fx:id="sizeColumn" minWidth="0.0" prefWidth="261.0" sortable="false" text="Size" />
-                        <TableColumn fx:id="progressColumn" prefWidth="149.0" sortable="false" text="Progress(%)" />
-                        <TableColumn fx:id="speedColumn" prefWidth="145.0" sortable="false" text="Speed" />
-                        <TableColumn fx:id="statusColumn" prefWidth="177.0" sortable="false" text="Status" />
+                      <TableColumn fx:id="urlColumn" prefWidth="535.0" sortable="false" text="Name" />
+                      <TableColumn fx:id="sizeColumn" minWidth="0.0" prefWidth="228.0" sortable="false" text="Size " />
+                        <TableColumn fx:id="progressColumn" prefWidth="165.0" sortable="false" text="Progress (%)" />
+                        <TableColumn fx:id="speedColumn" prefWidth="151.0" sortable="false" text="Speed " />
+                        <TableColumn fx:id="statusColumn" prefWidth="284.0" sortable="false" text="Status" />
                     </columns>
                   </TableView>
                </children>

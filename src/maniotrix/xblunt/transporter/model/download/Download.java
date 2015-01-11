@@ -53,8 +53,8 @@ public class Download implements java.lang.Runnable, Serializable {
 	long[] thread_start;
 	long[] thread_data;
 	long[] thread_temp;
-	//@XmlTransient
-	//RandomAccessFile[] thread_file;
+	// @XmlTransient
+	// RandomAccessFile[] thread_file;
 
 	private URL url;// url of file
 	private long filesize, downloadstartTime;// size of file
@@ -77,7 +77,7 @@ public class Download implements java.lang.Runnable, Serializable {
 		thread_start = new long[numthread];
 		thread_data = new long[numthread];
 		thread_temp = new long[numthread];
-		//thread_file = new RandomAccessFile[numthread];
+		// thread_file = new RandomAccessFile[numthread];
 		// start download
 		download(numthread);
 
@@ -109,14 +109,14 @@ public class Download implements java.lang.Runnable, Serializable {
 	}
 
 	public Long getsize() {
-		return filesize;
+			return filesize;
 	}
 
-	public Float getspeed() {
+	public long getspeed() {
 		if (status == Status.Downloading)
-			return (float) (this.downprogress / 1024);
+			return downprogress;
 		else
-			return (float) 0;
+			return  0l;
 	}
 
 	public Float getprogress() {
@@ -129,13 +129,15 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// pause this download
 	public void pause() {
+		if (status == Status.Paused|| status==Status.Cancelled ||status==Status.Completed)
+			return;
 		ifactive = false;
 		ifresumed = false;
 		status = Status.Paused;
-		this.downprogress=0l;
+		this.downprogress = 0l;
 		// dataexch();
 		statechanged();
-
+		
 		try {
 			Thread.sleep(2000);
 			dataexch();
@@ -151,7 +153,7 @@ public class Download implements java.lang.Runnable, Serializable {
 		try {
 			for (int i = 0; i < numthreads; i++) {
 				while (threads[i] != null && threads[i].isAlive()) {
-					threads[i].connectionhttp.disconnect();
+					//threads[i].connectionhttp.disconnect();
 
 				}
 			}
@@ -163,7 +165,9 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// resume this download
 	public void resume() {
-
+		if (status == Status.Downloading || status == Status.Cancelled
+				|| status == Status.Completed)
+			return;
 		status = Status.Downloading;
 		ifactive = true;
 		ifresumed = true;
@@ -174,29 +178,42 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// cancel download
 	public void cancel() {
+		if(status==Status.Cancelled || status==Status.Completed)
+			return;
 		status = Status.Cancelled;
 		statechanged();
-		try {
-			Thread.sleep(2000);
-			dataexch();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		//Thread.sleep(2000);
+		dataexch();
 		// interrupting threads if alive
-		if (thread != null && thread.isAlive()) {
-			connectionhttp.disconnect();
-			System.out.println("disconnected threads ");
-		}
-		try {
-			for (int i = 0; i < numthreads; i++) {
-				while (threads[i] != null && threads[i].isAlive()) {
-					threads[i].connectionhttp.disconnect();
-
+	new Runnable() {
+			
+			@Override
+			public void run() {
+				if (thread != null && thread.isAlive()) {
+					connectionhttp.disconnect();
+					System.out.println("disconnected threads ");
 				}
+				try {
+					for (int i = 0; i < numthreads; i++) {
+						while (threads[i] != null && threads[i].isAlive()) {
+							threads[i].connectionhttp.disconnect();
+
+						}
+					}
+				} catch (Exception e) {
+				}
+				
+				try {
+					for(int i=0;i<numthreads;i++){
+						new File(filepath + "_" + i).delete();
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
 			}
-		} catch (Exception e) {
-		}
+		};
+		System.out.println("download cancelled");
 
 	}
 
@@ -210,11 +227,11 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// mark download an error
 	public void error() {
-		if (status != Status.Paused) {
+		/*if (status != Status.Paused) {
 			status = Status.Error;
-		} else {
+		} else {*/
 			status = Status.Error;
-		}
+		//}
 		statechanged();
 	}
 
@@ -227,41 +244,35 @@ public class Download implements java.lang.Runnable, Serializable {
 		thread.setPriority(Thread.NORM_PRIORITY);
 		thread.start();
 		this.timeprogress = 0;
-		//this.downprogress=0;
-		//organiseThreadFiles();
+		// this.downprogress=0;
+		// organiseThreadFiles();
 
 	}
 
-	/*public void organiseThreadFiles(RandomAccessFile[] thread_file) {
-		String mypath=filepath;
-		for (int i = 0; i < numthreads; i++) {
-			try {
-				if(mypath!=null ){
-				//mypath=	mypath + "_" + i;
-				//this.thread_file[i]=null;
-				thread_file[i] = new RandomAccessFile(mypath+ "_" + i, "rw");
-				thread_file[i].seek(thread_file[i].length());
-				System.out.println("File Pointer seeked"
-						+ thread_file[i].getFilePointer());}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	/*
+	 * public void organiseThreadFiles(RandomAccessFile[] thread_file) { String
+	 * mypath=filepath; for (int i = 0; i < numthreads; i++) { try {
+	 * if(mypath!=null ){ //mypath= mypath + "_" + i;
+	 * //this.thread_file[i]=null; thread_file[i] = new RandomAccessFile(mypath+
+	 * "_" + i, "rw"); thread_file[i].seek(thread_file[i].length());
+	 * System.out.println("File Pointer seeked" +
+	 * thread_file[i].getFilePointer());} } catch (Exception e) { // TODO
+	 * Auto-generated catch block e.printStackTrace(); }
+	 * 
+	 * } }
+	 */
 
-		}
-	}*/
-
-	//@SuppressWarnings("null")
+	// @SuppressWarnings("null")
 	@Override
 	public void run() {
 		RandomAccessFile file = null;
 		RandomAccessFile[] thread_file = new RandomAccessFile[numthreads];
-		/*for(int i=0;i<numthreads;i++){
-			thread_file[i]=null;
-		}*/
+		/*
+		 * for(int i=0;i<numthreads;i++){ thread_file[i]=null; }
+		 */
 		InputStream stream = null;
 		statechanged();
-
+		this.downprogress = 0l;
 		try {
 			// Open connection to URL.
 			connectionhttp = (HttpURLConnection) url.openConnection();
@@ -291,9 +302,10 @@ public class Download implements java.lang.Runnable, Serializable {
 			}
 			// check for valid content length
 			this.contentlength = connectionhttp.getContentLength();
-			if (contentlength < 1){
+			if (contentlength < 1) {
 				observer.setStatus("File is less than 1 byte");
-				return;}
+				return;
+			}
 
 			/*
 			 * set the length of download if it is not already set
@@ -301,7 +313,7 @@ public class Download implements java.lang.Runnable, Serializable {
 			if (filesize == -1 || filesize != contentlength) {
 				filesize = contentlength;
 				// statechanged();
-				observer.setSize(getsize().toString());
+				observer.setSize(UrlUtility.humanReadableByteCount(filesize, true));
 				System.out.println("connected" + filesize + "status= "
 						+ this.getstatus());
 			}
@@ -313,30 +325,30 @@ public class Download implements java.lang.Runnable, Serializable {
 				filepath = FileUtility.getFileName(connectionhttp);
 				observer.setFilename(filepath);
 			}
-			try{
-				
-			//organiseThreadFiles(thread_file);
+			try {
+
+				// organiseThreadFiles(thread_file);
 				for (int i = 0; i < numthreads; i++) {
 					try {
-						if(filepath!=null ){
-						//mypath=	mypath + "_" + i;
-						//this.thread_file[i]=null;
-						thread_file[i] = new RandomAccessFile(filepath+ "_" + i, "rw");
-						thread_file[i].seek(thread_file[i].length());
-						System.out.println("File Pointer seeked"
-								+ thread_file[i].getFilePointer());}
+						if (filepath != null) {
+							// mypath= mypath + "_" + i;
+							// this.thread_file[i]=null;
+							thread_file[i] = new RandomAccessFile(filepath
+									+ "_" + i, "rw");
+							thread_file[i].seek(thread_file[i].length());
+							System.out.println("File Pointer seeked"
+									+ thread_file[i].getFilePointer());
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 				}
-			}
-			catch(Exception e){
+			} catch (Exception e) {
 				observer.setStatus("file not found");
 				return;
 			}
-			
 
 			// initialize DownloadThread and byte arrays
 			this.threads = new DownThread[numthreads];
@@ -346,14 +358,13 @@ public class Download implements java.lang.Runnable, Serializable {
 
 				threads[i] = new DownThread(url, numthreads, i,
 						get_thread_data(i),
-						(((filesize * (i + 1)) / numthreads) - 1), this,thread_file[i]);
+						(((filesize * (i + 1)) / numthreads) - 1), this,
+						thread_file[i]);
 				threads[i].start();
 			}
 			System.out.println("Downloading...status= " + this.getstatus());
 			// wait for threads to complete
 			for (int i = 0; i < numthreads; i++) {
-				System.out.println(" data error occured" + "status ="
-						+ this.getstatus());
 				threads[i].join();
 
 			}
@@ -412,29 +423,26 @@ public class Download implements java.lang.Runnable, Serializable {
 			 * change status to finished if this point was reached because
 			 * downloading was finished
 			 */
-			if (status == Status.Downloading && file.length()==filesize) {
+			if (status == Status.Downloading && file.length() == filesize) {
 				status = Status.Completed;
 				System.out.println("error occured" + "status ="
 						+ this.getstatus());
 				statechanged();
 
-			}
-			else
-			{
-				for(int i=0;i<numthreads;i++){
+			} else {
+				for (int i = 0; i < numthreads; i++) {
 					thread_file[i].close();
-					thread_file[i]=null;
+					thread_file[i] = null;
 				}
 				statechanged();
 			}
 
 		} catch (Exception e) {
-			System.out.println("error occured"+e.getMessage());
+			System.out.println("error occured" + e.getMessage());
 			statechanged();
 			e.printStackTrace();
-			observer.setStatus(e.getMessage());
+			//observer.setStatus(e.getMessage());
 			error();
-			
 
 		} finally {
 			// close file
@@ -537,15 +545,14 @@ public class Download implements java.lang.Runnable, Serializable {
 	public void setThread_temp(long[] thread_temp) {
 		this.thread_temp = thread_temp;
 	}
-	/*//@XmlTransient
-	public RandomAccessFile[] getThread_file() {
-		return thread_file;
-	}
 
-	public void setThread_file(RandomAccessFile[] thread_file) {
-		this.thread_file = thread_file;
-	}
-*/
+	/*
+	 * //@XmlTransient public RandomAccessFile[] getThread_file() { return
+	 * thread_file; }
+	 * 
+	 * public void setThread_file(RandomAccessFile[] thread_file) {
+	 * this.thread_file = thread_file; }
+	 */
 	public URL getUrl() {
 		return url;
 	}

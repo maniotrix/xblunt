@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="362.0" prefWidth="450.0" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.ProxyEditController">
+   <children>
+      <TextField fx:id="host" layoutX="49.0" layoutY="54.0" prefHeight="25.0" prefWidth="332.0" promptText="Host" />
+      <TextField fx:id="port" layoutX="49.0" layoutY="104.0" prefHeight="25.0" prefWidth="332.0" promptText="Port" />
+      <TextField fx:id="username" layoutX="49.0" layoutY="160.0" prefHeight="25.0" prefWidth="332.0" promptText="Username" />
+      <PasswordField fx:id="password" layoutX="49.0" layoutY="216.0" prefHeight="32.0" prefWidth="332.0" promptText="Password" />
+      <HBox layoutX="122.0" layoutY="289.0" spacing="15.0">
+         <children>
+            <Button fx:id="ok" layoutX="122.0" layoutY="291.0" mnemonicParsing="false" onAction="#handleOk" prefHeight="35.0" prefWidth="96.0" text="Ok" />
+            <Button fx:id="cancel" layoutX="253.0" layoutY="289.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="35.0" prefWidth="104.0" text="Cancel" />
+         </children>
+         <effect>
+            <Reflection />
+         </effect>
+      </HBox>
+   </children>
+</AnchorPane>
