@@ -1,7 +1,8 @@
-package maniotrix.xblunt.transporter.model.download;
+package maniotrix.xblunt.transporter.model;
 
 import java.io.*;
 import java.net.*;
+import java.util.Observer;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -81,6 +82,9 @@ public class DownThread extends Thread{
 					connectionhttp.connect();
 				} catch (IOException e) {
 					System.out.println("connection error");
+					mainthread.error();
+					return;
+					
 				}
 				if (mainthread.ifresumed == false) {
 					System.out.println(" thread " + threadno + " died");
@@ -93,6 +97,7 @@ public class DownThread extends Thread{
 
 					System.out.println("unwanted response code= "
 							+ ResponseCode);
+					
 					return;
 				}
 				// check for valid content length
@@ -106,9 +111,11 @@ public class DownThread extends Thread{
 				/*
 				 * set the length of download if it is not already set
 				 */
-				if (size == -1)
+				if (size == -1){
 					size = contentlength;
-
+				}
+				
+				
 			/*	if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {
 					file = mainthread.thread_file[threadno];
 					file.seek(file.getFilePointer());

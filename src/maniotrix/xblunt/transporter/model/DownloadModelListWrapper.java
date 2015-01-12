@@ -1,4 +1,4 @@
-package maniotrix.xblunt.transporter.model.download;
+package maniotrix.xblunt.transporter.model;
 
 import java.util.List;
 

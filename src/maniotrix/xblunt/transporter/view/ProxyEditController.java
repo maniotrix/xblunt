@@ -87,6 +87,7 @@ public class ProxyEditController {
 
 	@FXML
 	public void handleSystem() {
+		Proxy.removeProxy();
 		System.setProperty("java.net.useSystemProxies", "true");
 	}
 
@@ -178,7 +179,7 @@ public class ProxyEditController {
 	public void handleAboutButton() {
 		String urlname = "github.com/maniotrix";
 		ProxyEditController.createHelpDialogs("About",
-				"Authoe:Prince\nGithub Page:" + urlname);
+				"Version:1.1\nAuthor:Prince\nGithub Page:" + urlname);
 
 	}
 	/*

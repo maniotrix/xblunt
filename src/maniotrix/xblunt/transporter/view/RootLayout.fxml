@@ -9,7 +9,7 @@
 
 <BorderPane prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.ProxyEditController">
    <top>
-      <MenuBar BorderPane.alignment="CENTER_LEFT">
+      <MenuBar stylesheets="@DarkTheme.css" BorderPane.alignment="CENTER_LEFT">
         <menus>
           <Menu mnemonicParsing="false" text="Proxy">
             <items>

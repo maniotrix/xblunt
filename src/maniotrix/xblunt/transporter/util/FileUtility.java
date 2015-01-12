@@ -4,10 +4,40 @@ package maniotrix.xblunt.transporter.util;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
 
+
+
 public class FileUtility {
+	
+	
+	
+	public static String getInitialname(String string){
+		String name=null;
+		try {
+			URL url=new URL(string);
+			HttpURLConnection urlC=(HttpURLConnection) url.openConnection();
+			urlC.connect();
+			name =FileUtility.getFileName(urlC);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			if (name == null) {
+				StringTokenizer st = new StringTokenizer(string,
+						"/");
+				while (st.hasMoreTokens())
+					name = st.nextToken();
+			}
+			
+		}
+		
+		return name;
+	}
+	
 	/**
 	 * Returns the file name associated to an url connection.<br />
 	 * The result is not a path but just a file name.
@@ -40,6 +70,8 @@ public class FileUtility {
        //if(FileUtility.checkFileExistence(fileName))
 		return fileName;
 	}
+	
+	
 
 	/**
 	 * Extract the file name from the content disposition header.

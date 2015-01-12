@@ -1,11 +1,16 @@
 package maniotrix.xblunt.transporter.view;
 
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.StringTokenizer;
+
+import org.apache.commons.io.FilenameUtils;
 
 import maniotrix.xblunt.transporter.MainApp;
-import maniotrix.xblunt.transporter.model.download.DownloadModel;
-import maniotrix.xblunt.transporter.model.download.Status;
+import maniotrix.xblunt.transporter.model.DownloadModel;
+import maniotrix.xblunt.transporter.model.Status;
 import maniotrix.xblunt.transporter.util.FileUtility;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -135,13 +140,30 @@ public class DownloadOverviewController {
 	 */
 	public void handleAddButton() {
 		String url = this.urlArea.getText();
-		if (url != null && verifyUrl(url) == false)
-			return;
+		this.urlArea.setText("requesting  filename from server");
+		if (url != null && verifyUrl(url) == false){
+			this.urlArea.setText("");
+			this.urlArea.setPromptText("url");
+			return;}
+		//this.urlArea.setText("requesting  filename from server");
 		FileChooser fileChooser = new FileChooser();
+		String initialname=FileUtility.getInitialname(url);
+		if(initialname==null){
+			return;
+		}
+		String extension=FilenameUtils.getExtension(initialname).toLowerCase();
+		if (extension.length()<6) {
+			FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+					extension + "(Files)", "." + extension);
+			fileChooser.getExtensionFilters().add(extFilter);
+		}
+		fileChooser.setInitialFileName(initialname);
 		String filepath = null;
 		try {
-			filepath = fileChooser.showSaveDialog(mainApp.getPrimaryStage())
-					.toString();
+			File file= fileChooser.showSaveDialog(mainApp.getPrimaryStage());
+			if(file!=null){
+			filepath=file.toString();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,7 +172,10 @@ public class DownloadOverviewController {
 			mainApp.getdownloadData().add(new DownloadModel(url, 8, filepath));
 		} else {
 			if (filepath == null)
-				mainApp.getdownloadData().add(new DownloadModel(url, 8, url));
+				//mainApp.getdownloadData().add(new DownloadModel(url, 8, url));
+				this.urlArea.setText("");
+				this.urlArea.setPromptText("url");
+				return;
 		}
 		// Add observable list data to the table
 		DownloadTable.setItems(mainApp.getdownloadData());

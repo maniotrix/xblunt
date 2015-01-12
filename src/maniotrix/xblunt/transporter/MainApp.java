@@ -3,13 +3,16 @@ package maniotrix.xblunt.transporter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+
 import org.controlsfx.dialog.Dialogs;
-import maniotrix.xblunt.transporter.model.download.DownloadModel;
-import maniotrix.xblunt.transporter.model.download.DownloadModelListWrapper;
-import maniotrix.xblunt.transporter.model.download.Status;
+
+import maniotrix.xblunt.transporter.model.DownloadModel;
+import maniotrix.xblunt.transporter.model.DownloadModelListWrapper;
+import maniotrix.xblunt.transporter.model.Status;
 import maniotrix.xblunt.transporter.view.DownloadOverviewController;
 import maniotrix.xblunt.transporter.view.ProxyEditController;
 import javafx.application.Application;
@@ -17,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
@@ -32,7 +36,7 @@ public class MainApp extends Application {
 	 */
 	public static ObservableList<DownloadModel> downloadModelList = FXCollections
 			.observableArrayList();
-	
+
 	/**
 	 * Constructor
 	 */
@@ -43,7 +47,14 @@ public class MainApp extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		MainApp.primaryStage = primaryStage;
-		MainApp.primaryStage.setTitle("Xblunt");
+		MainApp.primaryStage.setTitle("Xblunt-1.1");
+
+		// Set the application icon.
+		MainApp.primaryStage.getIcons().add(
+				new Image("file:resources/images/xblunt.jpg"));
+
+		MainApp.primaryStage.setMaximized(true);
+
 		MainApp.primaryStage.setOnCloseRequest((we) -> {
 			System.out.println("Stage is closing");
 			createCloseDialog();
@@ -52,7 +63,7 @@ public class MainApp extends Application {
 				if (downloadModelList.size() != 0) {
 					savedownloadDataToFile();
 				}
-				if(downloadModelList.size()==0){
+				if (downloadModelList.size() == 0) {
 					MainApp.resetDataFile();
 				}
 				System.out.println("Stage closed successfully");
@@ -66,22 +77,26 @@ public class MainApp extends Application {
 		initRootLayout();
 
 		showdownloadOverview();
-		
+
 		if (MainApp.getConfigFile().length() != 0) {
 			MainApp.loaddownloadDataFromFile();
 		}
-		
+
 		setListConfig();
-		
+
+		Dialogs.create()
+				.title("Warning")
+				.masthead("Software still under regular development")
+				.message(
+						"Do not pause or exit while downloads are being merged.\nDownload starts where app is installed if directory is not changed manually.\nProxy settings not retained after app is closed.\n( version:1.1 )")
+				.showWarning();
+
 	}
 
 	@SuppressWarnings("deprecation")
 	public void createCloseDialog() {
-		Dialogs.create()
-        .title("Xblunt")
-        .masthead("Saving Data")
-        .message("Operation Complete.\nPress Ok to Exit Application")
-        .showInformation();
+		Dialogs.create().title("Xblunt").masthead("Data Saved")
+				.message("Press Ok to Exit Application").showInformation();
 	}
 
 	/**
@@ -102,9 +117,10 @@ public class MainApp extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*if (MainApp.getConfigFile().length() != 0) {
-			MainApp.loaddownloadDataFromFile();
-		}*/
+		/*
+		 * if (MainApp.getConfigFile().length() != 0) {
+		 * MainApp.loaddownloadDataFromFile(); }
+		 */
 	}
 
 	/**
@@ -125,12 +141,12 @@ public class MainApp extends Application {
 			DownloadOverviewController controller = loader.getController();
 			controller.setMainApp(this);
 			controller.getDownloadTable().setItems(downloadModelList);
-			//setListConfig();
+			// setListConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static boolean showProxyEditor() {
 		try {
 			// Load the fxml file and create a new stage for the popup dialog.
@@ -140,27 +156,30 @@ public class MainApp extends Application {
 
 			// Create the dialog Stage.
 			Stage dialogStage = new Stage();
-			dialogStage.setTitle("Proxy"+ProxyEditController.proxytype.toUpperCase());
+			dialogStage.setTitle("Proxy"
+					+ ProxyEditController.proxytype.toUpperCase());
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.initOwner(primaryStage);
-			//dialogStage.getIcons().add(new Image("file:resources/images/edit.png"));
+			// dialogStage.getIcons().add(new
+			// Image("file:resources/images/edit.png"));
 			Scene scene = new Scene(page);
 			dialogStage.setScene(scene);
 
 			// Set the person into the controller.
 			ProxyEditController controller = loader.getController();
 			controller.setDialogStage(dialogStage);
-			//controller.setMainApp(this);
+			// controller.setMainApp(this);
 			// Show the dialog and wait until the user closes it
 			dialogStage.showAndWait();
-			
+
 			return controller.isOkClicked();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
+
 	/**
 	 * Returns the main stage.
 	 * 
@@ -200,7 +219,7 @@ public class MainApp extends Application {
 	 */
 	@SuppressWarnings("deprecation")
 	public static void loaddownloadDataFromFile() {
-		
+
 		File file = MainApp.getConfigFile();
 		try {
 			JAXBContext context = JAXBContext
@@ -213,7 +232,7 @@ public class MainApp extends Application {
 
 			downloadModelList.clear();
 			downloadModelList.addAll(wrapper.getDownloads());
-			 System.out.println("Program Status Loaded");
+			System.out.println("Program Status Loaded");
 			// downloadData.get(0).getDownload().resume();
 
 			// Save the file path to the registry.
@@ -225,11 +244,11 @@ public class MainApp extends Application {
 			 * "Could not load data from file:\n" + file.getPath())
 			 * .showException(e);
 			 */
-			//Dialogs.create().title("").masthead("").showTextInput("");
+			// Dialogs.create().title("").masthead("").showTextInput("");
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Saves the current Download data to the specified file.
 	 * 
@@ -237,7 +256,7 @@ public class MainApp extends Application {
 	 */
 	@SuppressWarnings("deprecation")
 	public static void savedownloadDataToFile() {
-		if(downloadModelList.size()==0){
+		if (downloadModelList.size() == 0) {
 			MainApp.resetDataFile();
 		}
 		File file = MainApp.getConfigFile();
@@ -269,7 +288,8 @@ public class MainApp extends Application {
 	public void setListConfig() {
 		int length = downloadModelList.size();
 		for (int i = 0; i < length; i++) {
-			String status = downloadModelList.get(i).getStatus();
+			String status = downloadModelList.get(i).getDownload().getstatus()
+					.toString();
 			if (status == Status.Downloading.toString()) {
 				downloadModelList.get(i).setStatus(Status.Paused.toString());
 			} else
@@ -280,22 +300,23 @@ public class MainApp extends Application {
 	public void saveOnClose() {
 		int length = downloadModelList.size();
 		for (int i = 0; i < length; i++) {
-			String status = downloadModelList.get(i).getStatus();
+			String status = downloadModelList.get(i).getDownload().getstatus()
+					.toString();
 			if (status == Status.Downloading.toString()) {
 				downloadModelList.get(i).getDownload().pause();
 			} else
 				continue;
 		}
-		if(downloadModelList.size()==0){
+		if (downloadModelList.size() == 0) {
 			MainApp.resetDataFile();
 		}
 	}
 
 	public static File getConfigFile() {
-		return Paths.get("configuration/xbluntdata.xml").toFile();
+		return Paths.get("xbluntdata.xml").toFile();
 	}
-	
-	public static void resetDataFile(){
+
+	public static void resetDataFile() {
 		getConfigFile().delete();
 		try {
 			getConfigFile().createNewFile();

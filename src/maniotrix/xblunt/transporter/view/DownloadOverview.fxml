@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="600.0" minWidth="600.0" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.DownloadOverviewController">
+<AnchorPane prefHeight="500.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="maniotrix.xblunt.transporter.view.DownloadOverviewController">
    <children>
       <SplitPane dividerPositions="0.7408026755852842" layoutX="197.0" layoutY="80.0" orientation="VERTICAL" prefHeight="600.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -23,9 +23,9 @@
                   </TableView>
                </children>
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" stylesheets="@DarkTheme.css">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <HBox layoutX="699.0" layoutY="58.0" spacing="5.0">
+                  <HBox layoutX="699.0" layoutY="58.0" spacing="5.0" stylesheets="@DarkTheme.css">
                      <children>
                         <Button fx:id="pauseButton" layoutX="204.0" layoutY="76.0" mnemonicParsing="false" onAction="#handlePauseButton" text="Pause" />
                         <Button fx:id="resumeButton" layoutX="289.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleResumeButton" text="Resume" />
@@ -37,8 +37,8 @@
                         <Reflection />
                      </effect>
                   </HBox>
-                  <TextField fx:id="urlArea" layoutX="31.0" layoutY="30.0" prefHeight="32.0" prefWidth="554.0" promptText="url" />
-                  <Button fx:id="addButton" layoutX="110.0" layoutY="74.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="25.0" prefWidth="92.0" text="Add">
+                  <TextField fx:id="urlArea" layoutX="31.0" layoutY="30.0" prefHeight="32.0" prefWidth="554.0" promptText="url" stylesheets="@DarkTheme.css" />
+                  <Button fx:id="addButton" layoutX="110.0" layoutY="74.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="25.0" prefWidth="92.0" stylesheets="@DarkTheme.css" text="Add">
                      <effect>
                         <Reflection />
                      </effect>

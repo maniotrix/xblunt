@@ -1,4 +1,4 @@
-package maniotrix.xblunt.transporter.model.download;
+package maniotrix.xblunt.transporter.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 

@@ -1,4 +1,4 @@
-package maniotrix.xblunt.transporter.model.download;
+package maniotrix.xblunt.transporter.model;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,6 +80,7 @@ public class DownloadModel implements Serializable {
 		this.speed = new SimpleStringProperty(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
 		this.status = new SimpleStringProperty(download.getstatus().toString());
 		status.addListener(observable -> {
+			if(getStatus()=="Completed" || getStatus()=="Paused")
 			MainApp.savedownloadDataToFile();
 		});
 
@@ -87,7 +88,7 @@ public class DownloadModel implements Serializable {
 
 	public void updateModel() {
 		//setSize(download.getsize().toString());
-		setProgress(download.getprogress().toString());
+		setProgress(download.getprogress());
 		setSpeed(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
 		setStatus(download.getstatus().toString());
 	}

@@ -1,4 +1,4 @@
-package maniotrix.xblunt.transporter.model.download;
+package maniotrix.xblunt.transporter.model;
 
 import java.io.*;
 import java.net.*;
@@ -119,8 +119,9 @@ public class Download implements java.lang.Runnable, Serializable {
 			return  0l;
 	}
 
-	public Float getprogress() {
-		return ((float) this.progress / filesize) * 100;
+	public String getprogress() {
+		Float f=((float) this.progress / filesize) * 100;
+		return f.toString();
 	}
 
 	public Status getstatus() {
@@ -287,6 +288,7 @@ public class Download implements java.lang.Runnable, Serializable {
 			} catch (IOException e) {
 				System.out.println("connection error");
 				observer.setStatus(e.getMessage());
+				error();
 			}
 			if (ifresumed == false) {
 				System.out.println(" mainthread died");
@@ -297,12 +299,15 @@ public class Download implements java.lang.Runnable, Serializable {
 			if (ResponseCode / 100 != 2) {
 
 				System.out.println("unwanted response code= " + ResponseCode);
+				error();
 				observer.setStatus("Http Response Error");
 				return;
 			}
 			// check for valid content length
 			this.contentlength = connectionhttp.getContentLength();
+			System.out.println(contentlength);
 			if (contentlength < 1) {
+				error();
 				observer.setStatus("File is less than 1 byte");
 				return;
 			}
@@ -317,6 +322,16 @@ public class Download implements java.lang.Runnable, Serializable {
 				System.out.println("connected" + filesize + "status= "
 						+ this.getstatus());
 			}
+			/*connectionhttp.disconnect();
+			connectionhttp.setRequestProperty("Range", "bytes=" + 0
+					+ "-" + filesize/8);
+			connectionhttp.connect();
+			contentlength= connectionhttp.getContentLength();
+			if(contentlength>filesize/8){
+				observer.setStatus("Server discarding multiple connection");
+				return;
+			}*/
+			
 			System.out.println("connected" + " and filesize= " + filesize);
 			System.out.println(filepath);
 
@@ -368,17 +383,20 @@ public class Download implements java.lang.Runnable, Serializable {
 				threads[i].join();
 
 			}
-			System.out.println("opening file");
+			System.out.println("opening file "+status.toString());
 
 			// open file and seek to the end of it
 			if (this.status == Status.Downloading) {
+				new File(filepath).delete();
 				file = new RandomAccessFile(filepath, "rw");
 				file.seek(0);
+				dataexch();
+				observer.setStatus("Download Comlpete Merging Files");
 				for (int i = 0; i < numthreads; i++) {
 					thread_file[i].seek(0);
 					long threadsize = thread_file[i].length();
 					long temp = 0l;
-					System.out.println("writing for" + "" + i + "  "
+					System.out.println("writing for" + filepath  + i + "  "
 							+ threadsize);
 					while (status == Status.Downloading) {
 						if (temp == 0)
@@ -410,7 +428,7 @@ public class Download implements java.lang.Runnable, Serializable {
 						}
 						file.write(buffer, 0, read);
 						temp += read;
-						statechanged();
+						//statechanged();
 					}
 					System.out.println("bytes wriiten "
 							+ thread_file[i].length() + " "
