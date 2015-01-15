@@ -15,6 +15,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import maniotrix.xblunt.transporter.MainApp;
 import maniotrix.xblunt.transporter.util.UrlUtility;
 import maniotrix.xblunt.transporter.view.DownloadOverviewController;
@@ -31,6 +34,8 @@ import javafx.beans.property.StringProperty;
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @Entity
 public class DownloadModel implements Serializable {
+	
+	//private static Logger logger=LoggerFactory.getLogger(DownloadModel.class);
 
 	/**
 	 * 
@@ -88,9 +93,14 @@ public class DownloadModel implements Serializable {
 
 	public void updateModel() {
 		//setSize(download.getsize().toString());
-		setProgress(download.getprogress());
-		setSpeed(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
-		setStatus(download.getstatus().toString());
+		try {
+			setProgress(download.getprogress());
+			setSpeed(UrlUtility.humanReadableByteCount(download.getspeed(), true)+"/s");
+			setStatus(download.getstatus().toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void cancelDownload(){
@@ -125,6 +135,7 @@ public class DownloadModel implements Serializable {
 	}
 
 	public void setProgress(String progress) {
+		//logger.error(progress);
 		this.progress.set(progress);
 	}
 

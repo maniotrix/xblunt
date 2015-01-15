@@ -109,11 +109,17 @@ public class DownThread extends Thread{
 				System.out.println("end-start= " + (end - start)
 						+ " contenlength= " + contentlength);
 				/*
+				if(contentlength > (end-start+1) &&  threadno>0 ){
+					return;
+				}*/
+				/*
 				 * set the length of download if it is not already set
 				 */
 				if (size == -1){
 					size = contentlength;
 				}
+				
+				
 				
 				
 			/*	if (mainthread.ifactive && mainthread.thread_file[threadno] != null) {

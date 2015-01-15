@@ -7,5 +7,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/home/maniotrix/Downloads/eclipselink/jlib/eclipselink.jar"/>
 	<classpathentry kind="lib" path="/home/maniotrix/Downloads/glassfish4/glassfish/modules/javax.persistence.jar"/>
+	<classpathentry kind="lib" path="/home/maniotrix/Downloads/xblunt/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="/home/maniotrix/Downloads/xblunt/lib/slf4j-api-1.7.10.jar"/>
+	<classpathentry kind="lib" path="/home/maniotrix/Downloads/xblunt/lib/slf4j-simple-1.7.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

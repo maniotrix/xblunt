@@ -109,18 +109,18 @@ public class Download implements java.lang.Runnable, Serializable {
 	}
 
 	public Long getsize() {
-			return filesize;
+		return filesize;
 	}
 
 	public long getspeed() {
 		if (status == Status.Downloading)
 			return downprogress;
 		else
-			return  0l;
+			return 0l;
 	}
 
 	public String getprogress() {
-		Float f=((float) this.progress / filesize) * 100;
+		Float f = ((float) this.progress / filesize) * 100;
 		return f.toString();
 	}
 
@@ -130,7 +130,8 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// pause this download
 	public void pause() {
-		if (status == Status.Paused|| status==Status.Cancelled ||status==Status.Completed)
+		if (status == Status.Paused || status == Status.Cancelled
+				|| status == Status.Completed)
 			return;
 		ifactive = false;
 		ifresumed = false;
@@ -138,7 +139,7 @@ public class Download implements java.lang.Runnable, Serializable {
 		this.downprogress = 0l;
 		// dataexch();
 		statechanged();
-		
+
 		try {
 			Thread.sleep(2000);
 			dataexch();
@@ -154,7 +155,7 @@ public class Download implements java.lang.Runnable, Serializable {
 		try {
 			for (int i = 0; i < numthreads; i++) {
 				while (threads[i] != null && threads[i].isAlive()) {
-					//threads[i].connectionhttp.disconnect();
+					// threads[i].connectionhttp.disconnect();
 
 				}
 			}
@@ -179,15 +180,15 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// cancel download
 	public void cancel() {
-		if(status==Status.Cancelled || status==Status.Completed)
+		if (status == Status.Cancelled || status == Status.Completed)
 			return;
 		status = Status.Cancelled;
 		statechanged();
-		//Thread.sleep(2000);
+		// Thread.sleep(2000);
 		dataexch();
 		// interrupting threads if alive
-	new Runnable() {
-			
+		new Runnable() {
+
 			@Override
 			public void run() {
 				if (thread != null && thread.isAlive()) {
@@ -203,17 +204,9 @@ public class Download implements java.lang.Runnable, Serializable {
 					}
 				} catch (Exception e) {
 				}
-				
-				try {
-					for(int i=0;i<numthreads;i++){
-						new File(filepath + "_" + i).delete();
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
 			}
 		};
+		Download.deleteThreadFiles(numthreads, filepath);
 		System.out.println("download cancelled");
 
 	}
@@ -228,12 +221,13 @@ public class Download implements java.lang.Runnable, Serializable {
 
 	// mark download an error
 	public void error() {
-		/*if (status != Status.Paused) {
-			status = Status.Error;
-		} else {*/
-			status = Status.Error;
-		//}
+		/*
+		 * if (status != Status.Paused) { status = Status.Error; } else {
+		 */
+		status = Status.Error;
+		// }
 		statechanged();
+		observer.setStatus("Network error,Configure setting and try again");
 	}
 
 	// start or resume download
@@ -248,6 +242,19 @@ public class Download implements java.lang.Runnable, Serializable {
 		// this.downprogress=0;
 		// organiseThreadFiles();
 
+	}
+
+	public static void deleteThreadFiles(int Numthreads, String filepath) {
+		try {
+			for (int i = 0; i < Numthreads; i++) {
+				new File(filepath + "_" + i).delete();
+			}
+
+			new File(filepath).delete();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/*
@@ -318,20 +325,22 @@ public class Download implements java.lang.Runnable, Serializable {
 			if (filesize == -1 || filesize != contentlength) {
 				filesize = contentlength;
 				// statechanged();
-				observer.setSize(UrlUtility.humanReadableByteCount(filesize, true));
+				observer.setSize(UrlUtility.humanReadableByteCount(filesize,
+						true));
 				System.out.println("connected" + filesize + "status= "
 						+ this.getstatus());
 			}
-			/*connectionhttp.disconnect();
-			connectionhttp.setRequestProperty("Range", "bytes=" + 0
-					+ "-" + filesize/8);
+			connectionhttp.disconnect();
+			connectionhttp = (HttpURLConnection) url.openConnection();
+			connectionhttp.setRequestProperty("Range", "bytes=" + 0 + "-"
+					+ filesize / 8);
 			connectionhttp.connect();
-			contentlength= connectionhttp.getContentLength();
-			if(contentlength>filesize/8){
-				observer.setStatus("Server discarding multiple connection");
-				return;
-			}*/
-			
+			contentlength = connectionhttp.getContentLength();
+			if (contentlength > (filesize / 8) + 1) {
+				observer.setStatus(" no byte-serving,one connection allowed ");
+				numthreads = 1;
+			}
+
 			System.out.println("connected" + " and filesize= " + filesize);
 			System.out.println(filepath);
 
@@ -383,7 +392,7 @@ public class Download implements java.lang.Runnable, Serializable {
 				threads[i].join();
 
 			}
-			System.out.println("opening file "+status.toString());
+			System.out.println("opening file " + status.toString());
 
 			// open file and seek to the end of it
 			if (this.status == Status.Downloading) {
@@ -396,7 +405,7 @@ public class Download implements java.lang.Runnable, Serializable {
 					thread_file[i].seek(0);
 					long threadsize = thread_file[i].length();
 					long temp = 0l;
-					System.out.println("writing for" + filepath  + i + "  "
+					System.out.println("writing for" + filepath + i + "  "
 							+ threadsize);
 					while (status == Status.Downloading) {
 						if (temp == 0)
@@ -428,7 +437,7 @@ public class Download implements java.lang.Runnable, Serializable {
 						}
 						file.write(buffer, 0, read);
 						temp += read;
-						//statechanged();
+						// statechanged();
 					}
 					System.out.println("bytes wriiten "
 							+ thread_file[i].length() + " "
@@ -459,7 +468,7 @@ public class Download implements java.lang.Runnable, Serializable {
 			System.out.println("error occured" + e.getMessage());
 			statechanged();
 			e.printStackTrace();
-			//observer.setStatus(e.getMessage());
+			// observer.setStatus(e.getMessage());
 			error();
 
 		} finally {

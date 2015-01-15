@@ -15,24 +15,22 @@ import java.util.StringTokenizer;
 public class FileUtility {
 	
 	
-	
+	/**
+	 * extract filename from url.
+	 * @param string
+	 * @return filename
+	 */
 	public static String getInitialname(String string){
 		String name=null;
 		try {
-			URL url=new URL(string);
-			HttpURLConnection urlC=(HttpURLConnection) url.openConnection();
-			urlC.connect();
-			name =FileUtility.getFileName(urlC);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			if (name == null) {
 				StringTokenizer st = new StringTokenizer(string,
 						"/");
 				while (st.hasMoreTokens())
 					name = st.nextToken();
-			}
 			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return name;
