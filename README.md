@@ -1,4 +1,4 @@
-# Xblunt
+# Xblunt `UPDATED`
 
 ####  Developed by [maniotrix](https://github.com/maniotrix/xblunt/maniotrix)
  
